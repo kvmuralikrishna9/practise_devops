@@ -1,0 +1,26 @@
+---
+kind: Pod
+apiVersion: v1
+metadata:
+  name: 7-c-nodeselector
+  annotations:
+    description: adding pod labels and node labels
+
+  labels:
+    env: dev-env
+    class: pods
+    team: devops
+
+spec:
+  containers:
+    - name: 7-c-nodeselector
+      image: ubuntu
+      command: ["/bin/bash", "-c", "while true; do echo 7-c-nodeselector; sleep 5; done"]
+      resources:
+        limits:
+          memory: "64Mi"
+          cpu: "100m"
+
+  nodeSelector:
+    ec2type: t2.medium
+

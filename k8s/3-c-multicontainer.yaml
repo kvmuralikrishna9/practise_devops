@@ -1,0 +1,27 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: 3-c-multicontainer
+  annotations:
+    description: pod creation with multicontainers 1 & 2
+
+spec:
+  containers:
+  - name: 3-c-multicontainer-1
+    image: ubuntu
+    command: ["/bin/bash", "-c", "while true ; do echo 3-c-multicontainer-1 ; sleep 5 ; done"]
+    resources:
+      limits:
+        memory: "64Mi"
+        cpu: "100m"
+  
+  - name: 3-c-multicontainer-2
+    image: centos
+    command: ["/bin/bash", "-c", "while true ; do echo 3-c-multicontainer-1 ; sleep 5 ; done"]
+    resources:
+      limits:
+        memory: "64Mi"
+        cpu: "100m"  
+
+

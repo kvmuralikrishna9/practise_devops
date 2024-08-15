@@ -1,0 +1,17 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: 2-c-annotation
+  annotations:
+    description: pod creation with annoatation
+
+spec:
+  containers:
+  - name: 2-c-annotation
+    image: ubuntu
+    command: ["/bin/bash", "-c", "while true ; do echo 2-c-annotation.yaml ; sleep 5 ; done"]
+    resources:
+      limits:
+        memory: "64Mi"
+        cpu: "100m"

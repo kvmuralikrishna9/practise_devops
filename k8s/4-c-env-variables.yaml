@@ -1,0 +1,38 @@
+---
+kind: Pod
+apiVersion: v1
+
+metadata:
+  name: 4-c-env-variables
+  annotations:
+    description: pod with environmental variables
+
+spec:
+  containers:
+    - name: 4-c-env-variables
+      image: ubuntu
+      command: ["/bin/bash", "-c", "while true ; do echo 4-c-EnvVariables ; sleep 5 ; done"]
+
+      env:
+        - name: MYNAME
+          value: murali
+
+        - name: PHONE-NUMBER
+          value: "9876543210"
+
+      resources:
+        limits:
+          memory: "64Mi"
+          cpu: "100m"
+
+
+
+# kubectl apply -f 4-c-env-variables.yaml
+# kubectl get pods
+# kubectl describe pod 4-c-env-variables
+# kubectl exec -it 4-c-env-variables -- /bin/bash  (To enter into pod)
+# echo $MYNAME               (o/p: murali)
+# echo $PHONE-NUMBER         (o/p: 9876543210)
+# env                        (o/p: shows all the environmental variables from pod)
+# ctrl+p+q                    to exit from pod
+# kubectl delete pod 4-c-env-variables       

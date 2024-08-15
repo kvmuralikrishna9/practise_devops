@@ -1,0 +1,16 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: 1-c-ubuntu-os
+
+spec:
+  containers:
+  - name: 1-c-ubuntu-os
+    image: ubuntu
+    command: ["/bin/bash", "-c", "while true ; do echo 1-c-ubuntu-os ; sleep 5 ; done"]
+    resources:
+      limits:
+        memory: "64Mi"
+        cpu: "100m"
+

@@ -1,0 +1,20 @@
+---
+kind: Pod
+apiVersion: v1
+metadata:
+  name: 5-c-container-port
+  annotations:
+    description: creating container along with port assignment
+
+spec:
+  containers:
+    - name: 5-c-container-port
+      image: nginx
+    #command: ["/bin/bash", "-c", "while true ; do echo 5-c-container-port ; sleep 5 ; done"]
+    
+      ports:
+        - containerPort: 80
+      resources:
+        limits:
+          memory: "64Mi"
+          cpu: "100m"

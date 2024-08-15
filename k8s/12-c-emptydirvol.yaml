@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: 12-c-emptydirvol
+  annotations:
+    description: testpod for 12-c-emptydirvol
+    kubernetes.io/change-cause: initial-release-volume-v.01
+  labels:
+    env: dev-env
+    class: deployment
+    team: devops
+
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      env: dev-env
+  template:
+    metadata:
+      labels:
+        env: dev-env
+        class: deployment
+        team: devops
+
+    spec:
+      containers:
+        - name: nginx-container
+          image: nginx
+          volumeMounts:
+            - name: volumexchange
+              mountPath: /tmp/volumexchange
+          ports:
+            - containerPort: 80
+          resources:
+            limits:
+              cpu: "100m"
+              memory: "64Mi"
+
+        - name: httpd-container
+          image: nginx
+          volumeMounts:
+            - name: volumexchange
+              mountPath: /tmp/volumexchange
+          ports:
+            - containerPort: 81
+          resources:
+            limits:
+              cpu: "100m"
+              memory: "64Mi"
+
+      volumes:
+        - name: volumexchange
+          emptyDir: {}
+
+      nodeSelector:
+        ec2type: t2.medium
+

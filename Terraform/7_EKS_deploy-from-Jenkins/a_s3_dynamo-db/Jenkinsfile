@@ -1,0 +1,59 @@
+pipeline {
+    agent any
+    environment {
+        AWS_ACCESS_KEY_ID = credentials ('ACCESS_KEY_ID')
+        AWS_SECRET_ACCESS_KEY = credentials ('SECRET_ACCESS_KEY')
+        AWS_DEFAULT_REGION = "ap-south-1"
+    }
+
+    stages {
+        stage('Checkout-SCM'){
+            steps {
+                script{
+                   checkout scmGit(branches: [[name: '*/feature-branch']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/kvmuralikrishna9/DevOps_Practise.git']])
+                }
+            }
+        }
+
+        stage('Initialize Terraform'){
+            steps {
+                script{
+                    dir('terraform/7_EKS_deploy-from-Jenkins/a_s3_dynamo-db'){
+                        sh 'terraform init'
+                    }   
+                }
+            }
+        }
+
+        stage('Formatting/Validating Code'){
+            steps {
+                script{
+                    dir('terraform/7_EKS_deploy-from-Jenkins/a_s3_dynamo-db'){ 
+                        sh 'terraform fmt'
+                        sh 'terraform validate'
+                    }   
+                }
+            }
+        }
+
+        stage('Previewing the Infrastructure'){
+            steps {
+                script{
+                    dir('terraform/7_EKS_deploy-from-Jenkins/a_s3_dynamo-db'){ 
+                        sh 'terraform plan -out=a_s3_dynamo-db.tfplan'
+                    }   
+                }
+            }
+        }
+
+        stage('Creating/Destroying S3-Ddb'){
+            steps {
+                script{
+                    dir('terraform/7_EKS_deploy-from-Jenkins/a_s3_dynamo-db'){ 
+                        sh 'terraform $action --auto-approve'    //parameterized
+                    }   
+                }
+            }
+        }
+    }
+}

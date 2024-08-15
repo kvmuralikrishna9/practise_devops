@@ -1,0 +1,36 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: 11-c-containerport
+  annotations:
+    description: pod for container
+    kubernetes.io/change-cause: initial-release-v1.0
+  labels:
+    env: dev-env
+    class: deployment
+    team: devops
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      class: deployment
+  template:
+    metadata:
+      labels:
+        env: dev-env
+        class: deployment
+        team: devops
+    spec:
+      containers:
+        - name: 11-c-containerport
+          image: httpd  
+          command: ["/bin/bash", "-c", "while true; do echo 11-c-containerport; sleep 5; done"]
+          ports:  
+            - containerPort: 80 
+          resources:
+            limits: 
+              cpu: "100m"
+              memory: "64Mi"
+      nodeSelector:  
+        ec2type: t2.medium  

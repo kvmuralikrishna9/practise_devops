@@ -1,0 +1,38 @@
+---
+kind: Pod
+apiVersion: v1
+metadata:
+  name: 6-c-labels
+  annotations:
+    description: pod with labels for pods
+
+  labels:
+    env: dev-env
+    class: pods
+
+spec:
+  containers:
+    - name: 6-c-labels
+      image: ubuntu
+      command: ["/bin/bash", "-c", "while true ; do echo 6-c-labels ; sleep 5 ; done"]
+      resources:
+        limits:
+          memory: "64Mi"
+          cpu: "100m"
+
+
+
+
+#kubectl get pods --show-labels     		shows all the pods with labels
+#kubectl label pod pod_n team=devops		to label the pods	
+
+# kubectl get pods -l env=dev-env   (-l small L)		shows all pods with label "env=dev-env"
+# kubectl delete pods -l env=dev-env   (-l small L)		deletes all pods with label "env=dev-env"
+
+# kubectl get pods -l env!=dev-env   (-l small L)		shows all pods without label "env=dev-env"
+# kubectl delete pods -l env!=dev-env   (-l small L)		deletes all pods without label "env=dev-env"
+
+# kubectl get pods -l 'env in(dev-env,linux)'			shows all pods with label "dev-env or linux"
+# kubectl get pods -l 'env notin(dev-env, devops)'		shows all pods without label "dev-env or linux"
+# kubectl get pods -l class=pod,love=devops			shows all pods which match both labels
+

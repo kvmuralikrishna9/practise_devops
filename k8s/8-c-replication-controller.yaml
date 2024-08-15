@@ -1,0 +1,31 @@
+---
+kind: ReplicationController
+apiVersion: v1
+metadata:
+  name: 8-c-replication-controller
+  annotations:
+    description: test-pod for repliaction-controller
+
+spec:
+  replicas: 2
+  selector:
+    env: dev-env
+  template:
+    metadata:
+      name: 8-c-replication-controller
+      labels:
+        env: dev-env
+
+    spec:
+      containers:
+        - name: 8-c-replication-controller
+          image: ubuntu
+          command: ["/bin/bash", "-c", "while true ; do echo 8-c-replication-controller ; sleep 5 ;done"]
+          resources:
+            limits:
+              cpu: "100m"
+              memory: "64Mi"
+
+      nodeSelector:
+        ec2type: t2.medium        
+      restartPolicy: Always

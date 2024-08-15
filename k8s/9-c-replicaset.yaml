@@ -1,0 +1,54 @@
+
+#ReplicationController and ReplicaSet
+
+#ReplicationController and ReplicaSet both works same, but RS have caplability to add "matchExpression".
+
+#kubectl get [rc/rs] [rc_n/rs_n]			to get rc(ReplicationController)/rs(ReplicaSet)
+#kubectl describe [rc/rs] [rc_n/rs_n]			to describe rc(ReplicationController)/rs(ReplicaSet)
+#kubectl get pods
+#kubectl get pods --show-labels				shows all the pods with labels
+#kubectl scale --replicas=4 [rc/rs] [rc_n/rs_n]  	to scale the pods in rc(ReplicationController)/rs(ReplicaSet)
+#kubectl scale --replicas=3 [rc/rs] -l env=dev-env     	using labels(-l) to scale the pods in rc(ReplicationController)/rs(ReplicaSet) 
+#kubectl delete [rc/rs] [rc_n/rs_n]			to delete the rc(ReplicationController)/rs(ReplicaSet)
+
+
+
+---
+kind: ReplicaSet
+apiVersion: apps/v1
+metadata:
+  name: 9-c-replicaset
+  annotations:
+    describe: testpod created for 9-c-replicaset
+  labels:
+    env: dev-env
+    class: notpods
+spec:
+  replicas: 3
+  selector:
+    matchExpressions:
+      - key: env
+        operator: In
+        values: [pods, dev-env]
+      - key: class
+        operator: NotIn
+        values: [apps]
+  template:
+    metadata:
+      name: 9-c-replicaset
+      labels:
+        env: dev-env
+        class: notpods
+    spec:
+      containers:
+        - name: 9-c-replicaset
+          image: ubuntu
+          command: ["/bin/bash", "-c", "while true ; do echo 9-c-replicaset; sleep 5; done"]
+          resources:
+            limits:
+              memory: "64Mi"
+              cpu: "100m"
+      nodeSelector:
+        ec2type: t2.medium
+      restartPolicy: Always
+

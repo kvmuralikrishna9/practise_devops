@@ -1,0 +1,19 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-11-c-containerport
+  annotations:
+    describe: nodeport service
+  labels:
+    class: service
+    env: dev-env
+
+spec:
+  selector:
+    class: deployment
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: NodePort
