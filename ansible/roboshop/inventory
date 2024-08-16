@@ -1,0 +1,16 @@
+[web-tier]
+web.vrpproducts.online
+
+[app-tier]
+catalogue.vrpproducts.online
+cart.vrpproducts.online
+user.vrpproducts.online
+shipping.vrpproducts.online
+payments.vrpproducts.online
+rating.vrpproducts.online
+
+[db-tier]
+mongodb.vrpproducts.online
+redis6.vrpproducts.online
+mysql.vrpproducts.online
+rabbitmq.vrpproducts.online
