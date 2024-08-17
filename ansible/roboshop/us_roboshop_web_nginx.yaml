@@ -11,9 +11,8 @@
 
     - name: Remove default nginx files
       ansible.builtin.file:
-        path: /usr/share/nginx/html
+        path: /usr/share/ngnix/html
         state: absent
-        recurse: yes
 
     - name: Download the frontend content
       ansible.builtin.get_url:
@@ -23,7 +22,7 @@
     - name: Extract the frontend content
       ansible.builtin.unarchive:
         src: /tmp/web.zip
-        dest: /usr/share/nginx/html/
+        dest: /usr/share/ngnix/html/
         remote_src: yes
 
     - name: Copy file with owner and permissions
