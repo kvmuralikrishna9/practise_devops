@@ -1,5 +1,5 @@
 - name: Install Nginx and Configure the frontend
-  hosts: [web-tier]
+  hosts: web-tier
   user: ansible
   become: true
 
