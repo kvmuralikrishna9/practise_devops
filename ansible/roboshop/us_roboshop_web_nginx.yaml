@@ -17,23 +17,19 @@
 
     - name: Download the frontend content
       ansible.builtin.get_url:
-      url: https://roboshop-builds.s3.amazonaws.com/web.zip
-      dest: /tmp/web.zip
+        url: https://roboshop-builds.s3.amazonaws.com/web.zip
+        dest: /tmp/web.zip
 
     - name: Extract the frontend content
-      ansible.builtin.:
-      url: https://roboshop-builds.s3.amazonaws.com/web.zip
-      dest: /usr/share/ngnix/html/
+      ansible.builtin.unarchive:
+        src: /tmp/web.zip
+        dest: /usr/share/ngnix/html/
+        remote_src: yes
 
     - name: Copy file with owner and permissions
       ansible.builtin.copy:
         src: config_files/roboshop.conf
-        dest: /etc/ngnix/default.d/
-
-    - name: Extract the frontend content
-      ansible.builtin.unarchive:
-      src: /tmp/web.zip
-      dest: /usr/share/ngnix/html/
+        dest: /etc/ngnix/default.d/   
 
     - name: Start nginx
       ansible.builtin.service:
