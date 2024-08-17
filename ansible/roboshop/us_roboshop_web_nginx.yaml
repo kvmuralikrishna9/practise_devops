@@ -1,0 +1,40 @@
+- name: Insatll nginx and host the webserver
+  hosts: web-tier
+  user: ansible
+  become: true
+  
+  task:
+  - name: Insatll nginx
+    ansible.builtin.yum:
+      - name: nginx
+        state: present
+
+  - name: Remove default nginx files
+    ansible.builtin.file:
+      path: /usr/share/ngnix/html/*
+      state: absent
+
+  - name: Download the frontend content
+    ansible.builtin.get_url:
+    url: https://roboshop-builds.s3.amazonaws.com/web.zip
+    dest: /tmp
+
+  - name: Copy file with owner and permissions
+    ansible.builtin.copy:
+      src: config_files/roboshop.conf
+      dest: /etc/ngnix/default.d/
+
+  - name: Extract the frontend content.
+    ansible.builtin.unarchive:
+    src: /tmp/web.zip
+    dest: /usr/share/ngnix/html/
+
+  - name: Start nginx
+    ansible.builtin.yum:
+      - name: nginx
+        state: started
+
+  - name: Enable nginx
+    ansible.builtin.yum:
+      - name: nginx
+        enabled: true
