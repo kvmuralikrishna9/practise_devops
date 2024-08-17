@@ -9,6 +9,12 @@
         name: nginx
         state: installed
 
+    - name: Start and Enable nginx
+      ansible.builtin.service:
+        name: nginx
+        state: started
+        enabled: true
+
     - name: Remove Default nginx files
       ansible.builtin.file:
         path: /usr/share/nginx/html
@@ -38,5 +44,4 @@
     - name: Start and Enable nginx
       ansible.builtin.service:
         name: nginx
-        state: started
-        enabled: true
+        state: restarted
