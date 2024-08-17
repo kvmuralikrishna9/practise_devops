@@ -9,11 +9,25 @@
         name: nginx
         state: present
 
+    - name: Start Nginx
+      ansible.builtin.service:
+        name: nginx
+        state: started
+
+    - name: Enable nginx
+      ansible.builtin.service:
+        name: nginx
+        enabled: true
+
     - name: Remove default nginx files
       ansible.builtin.file:
         path: /usr/share/nginx/html
         state: absent
-
+    
+    - name: create html directory
+      ansible.builtin.file:
+        path: /usr/share/nginx/html
+        state: directory
 
     - name: Download the frontend content
       ansible.builtin.get_url:
@@ -29,14 +43,9 @@
     - name: Copy file with owner and permissions
       ansible.builtin.copy:
         src: config_files/roboshop.conf
-        dest: /etc/ngnix/default.d/   
+        dest: /etc/ngnix/default.d/
 
     - name: Start nginx
       ansible.builtin.service:
         name: nginx
-        state: started
-
-    - name: Enable nginx
-      ansible.builtin.service:
-        name: nginx
-        enabled: true
+        state: restarted
