@@ -13,7 +13,7 @@
       ansible.builtin.service:
         name: nginx
         state: started
-        enabled: true
+        enabled: yes
 
     - name: Remove Default nginx files
       ansible.builtin.file:
