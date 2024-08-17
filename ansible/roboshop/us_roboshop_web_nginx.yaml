@@ -3,38 +3,43 @@
   user: ansible
   become: true
   
-  task:
-  - name: Insatll nginx
-    ansible.builtin.yum:
-      - name: nginx
-        state: present
+  tasks:
+    - name: Insatll nginx
+      ansible.builtin.yum:
+        - name: nginx
+          state: present
 
-  - name: Remove default nginx files
-    ansible.builtin.file:
-      path: /usr/share/ngnix/html/*
-      state: absent
+    - name: Remove default nginx files
+      ansible.builtin.file:
+        path: /usr/share/ngnix/html
+        state: absent
 
-  - name: Download the frontend content
-    ansible.builtin.get_url:
-    url: https://roboshop-builds.s3.amazonaws.com/web.zip
-    dest: /tmp
+    - name: Download the frontend content
+      ansible.builtin.get_url:
+      url: https://roboshop-builds.s3.amazonaws.com/web.zip
+      dest: /tmp/web.zip
 
-  - name: Copy file with owner and permissions
-    ansible.builtin.copy:
-      src: config_files/roboshop.conf
-      dest: /etc/ngnix/default.d/
+    - name: Extract the frontend content
+      ansible.builtin.:
+      url: https://roboshop-builds.s3.amazonaws.com/web.zip
+      dest: /usr/share/ngnix/html/
 
-  - name: Extract the frontend content.
-    ansible.builtin.unarchive:
-    src: /tmp/web.zip
-    dest: /usr/share/ngnix/html/
+    - name: Copy file with owner and permissions
+      ansible.builtin.copy:
+        src: config_files/roboshop.conf
+        dest: /etc/ngnix/default.d/
 
-  - name: Start nginx
-    ansible.builtin.yum:
-      - name: nginx
-        state: started
+    - name: Extract the frontend content.
+      ansible.builtin.unarchive:
+      src: /tmp/web.zip
+      dest: /usr/share/ngnix/html/
 
-  - name: Enable nginx
-    ansible.builtin.yum:
-      - name: nginx
-        enabled: true
+    - name: Start nginx
+      ansible.builtin.service:
+        - name: nginx
+          state: started
+
+    - name: Enable nginx
+      ansible.builtin.service:
+        - name: nginx
+          enabled: true
