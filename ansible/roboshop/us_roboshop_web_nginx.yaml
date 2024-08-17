@@ -37,7 +37,7 @@
     - name: Extract the frontend content
       ansible.builtin.unarchive:
         src: /tmp/web.zip
-        dest: /usr/share/nginx/html/
+        dest: /usr/share/nginx/html/roboshop.conf
         remote_src: yes
 
     - name: Copy file with owner and permissions
