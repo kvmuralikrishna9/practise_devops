@@ -1,51 +1,47 @@
 - name: Insatll nginx and host the webserver
   hosts: web-tier
   user: ansible
-  become: true
+  become: yes
   
   tasks:
-    - name: Install nginx
-      ansible.builtin.yum:
-        name: nginx
-        state: installed
+  - name: Install Nginx
+    ansible.builtin.yum:
+      name: nginx
+      state: installed
 
-    - name: Start Nginx
-      ansible.builtin.service:
-        name: nginx
-        state: started
+  - name: Start and Enable Nginx
+    ansible.builtin.service:
+      name: nginx
+      state: started
+      enabled: yes
 
-    - name: Enable nginx
-      ansible.builtin.service:
-        name: nginx
-        enabled: true
-
-    - name: Remove default nginx files
-      ansible.builtin.file:
-        path: /usr/share/nginx/html
-        state: absent
+  - name: Remove default nginx files
+    ansible.builtin.file:
+      path: /usr/share/nginx/html
+      state: absent
     
-    - name: create html directory
-      ansible.builtin.file:
-        path: /usr/share/nginx/html
-        state: directory
+  - name: create html directory
+    ansible.builtin.file:
+      path: /usr/share/nginx/html
+      state: directory
 
-    - name: Download the frontend content
-      ansible.builtin.get_url:
-        url: https://roboshop-builds.s3.amazonaws.com/web.zip
-        dest: /tmp/web.zip
+  - name: Download the frontend content
+    ansible.builtin.get_url:
+      url: https://roboshop-builds.s3.amazonaws.com/web.zip
+      dest: /tmp
 
-    - name: Extract the frontend content
-      ansible.builtin.unarchive:
-        src: /tmp/web.zip
-        dest: /usr/share/nginx/html/roboshop.conf
-        remote_src: yes
+  - name: Extract the frontend content
+    ansible.builtin.unarchive:
+      src: /tmp/web.zip
+      dest: /usr/share/nginx/html
+      remote_src: yes
 
-    - name: Copy file with owner and permissions
-      ansible.builtin.copy:
-        src: config_files/roboshop.conf
-        dest: /etc/ngnix/default.d/
+  - name: Copy roboshop.conf
+    ansible.builtin.copy:
+      src: config_files/roboshop.conf
+      dest: /etc/ngnix/default.d/roboshop.conf
 
-    - name: Start nginx
-      ansible.builtin.service:
-        name: nginx
-        state: restarted
+  - name: Restart nginx
+    ansible.builtin.service:
+      name: nginx
+      state: restarted
