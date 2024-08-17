@@ -13,7 +13,6 @@
       ansible.builtin.service:
         name: nginx
         state: started
-        enabled: yes
 
     - name: Remove Default nginx files
       ansible.builtin.file:
@@ -40,7 +39,7 @@
       ansible.builtin.copy:
         src: config_files/roboshop.conf
         dest: /etc/nginx/default.d/roboshop.conf
-
+              
     - name: Start and Enable nginx
       ansible.builtin.service:
         name: nginx
