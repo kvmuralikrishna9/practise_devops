@@ -7,7 +7,7 @@
     - name: Install nginx
       ansible.builtin.yum:
         name: nginx
-          state: present
+        state: present
 
     - name: Remove default nginx files
       ansible.builtin.file:
@@ -38,9 +38,9 @@
     - name: Start nginx
       ansible.builtin.service:
         name: nginx
-          state: started
+        state: started
 
     - name: Enable nginx
       ansible.builtin.service:
         name: nginx
-          enabled: true
+        enabled: true
