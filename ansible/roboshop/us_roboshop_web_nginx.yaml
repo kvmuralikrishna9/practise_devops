@@ -4,7 +4,7 @@
   become: true
   
   tasks:
-    - name: Insatll nginx
+    - name: Install nginx
       ansible.builtin.yum:
         - name: nginx
           state: present
@@ -13,6 +13,7 @@
       ansible.builtin.file:
         path: /usr/share/ngnix/html
         state: absent
+        recurse: yes
 
     - name: Download the frontend content
       ansible.builtin.get_url:
@@ -29,7 +30,7 @@
         src: config_files/roboshop.conf
         dest: /etc/ngnix/default.d/
 
-    - name: Extract the frontend content.
+    - name: Extract the frontend content
       ansible.builtin.unarchive:
       src: /tmp/web.zip
       dest: /usr/share/ngnix/html/
