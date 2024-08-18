@@ -1,15 +1,15 @@
 - name: Insatll nginx and host the webserver
   hosts: web-tier
-  user: ansible
+  user: ec2-user
   become: yes
   
   tasks:
-  - name: Install Nginx
-    ansible.builtin.yum:
+  - name: Install_nginx
+    ansible.builtin.dnf:
       name: nginx
       state: installed
 
-  - name: Start and Enable Nginx
+  - name: Start_ Enable Nginx
     ansible.builtin.service:
       name: nginx
       state: started
@@ -39,7 +39,7 @@
   - name: Copy roboshop.conf
     ansible.builtin.copy:
       src: config_files/roboshop.conf
-      dest: /etc/ngnix/default.d/
+      dest: /etc/ngnix/default.d/roboshop.conf
 
   - name: Restart nginx
     ansible.builtin.service:

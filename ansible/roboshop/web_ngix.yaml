@@ -1,6 +1,6 @@
 - name: Install Nginx and Configure the frontend
   hosts: web-tier
-  user: ansible
+  user: ec2-user
   become: true
 
   tasks:
