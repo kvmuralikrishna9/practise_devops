@@ -5,7 +5,7 @@
   
   tasks:
   - name: Install_nginx
-    ansible.builtin.dnf:
+    ansible.builtin.yum:
       name: nginx
       state: installed
 
