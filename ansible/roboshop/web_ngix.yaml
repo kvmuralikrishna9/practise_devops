@@ -38,7 +38,7 @@
     - name: Create Nginx Reverse Proxy Configuration
       ansible.builtin.copy:
         src: config_files/roboshop.conf
-        dest: /etc/nginx/default.d/roboshop.conf
+        dest: /etc/nginx/default.d/
               
     - name: Start and Enable nginx
       ansible.builtin.service:
