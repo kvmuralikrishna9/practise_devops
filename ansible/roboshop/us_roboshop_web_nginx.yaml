@@ -1,6 +1,6 @@
 - name: Insatll nginx and host the webserver
-  hosts: web-tier
-  user: ec2-user
+  hosts: web
+  user: ansible
   become: yes
   
   tasks:
@@ -9,7 +9,7 @@
       name: nginx
       state: installed
 
-  - name: Start_ Enable Nginx
+  - name: Start_Enable Nginx
     ansible.builtin.service:
       name: nginx
       state: started
