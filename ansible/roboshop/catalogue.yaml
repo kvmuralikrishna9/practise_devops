@@ -11,11 +11,6 @@
       ansible.builtin.yum:
         name: nodejs
         state: installed
-
-    - name: start and enable nodejs
-      ansible.builtin.service:
-        name: nodejs
-        state: started
       
     - name: checking user roboshop existing status
       ansible.builtin.command: id roboshop
