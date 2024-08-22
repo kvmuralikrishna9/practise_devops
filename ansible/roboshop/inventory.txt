@@ -1,16 +1,40 @@
+## web-Tier ##
+
 [web]
 web.vrpproducts.online
 
-[app]
+
+## Application-Tier ##
+
+[catalogue]
 catalogue.vrpproducts.online
+
+[cart]
 cart.vrpproducts.online
+
+[user]
 user.vrpproducts.online
+
+[shipping]
 shipping.vrpproducts.online
-payments.vrpproducts.online
+
+[payment]
+payment.vrpproducts.online
+
+[rating]
 rating.vrpproducts.online
 
-[db]
+
+## Database-Tier ##
+
+[mongodb]
 mongodb.vrpproducts.online
+
+[redis6]
 redis6.vrpproducts.online
+
+[mysql]
 mysql.vrpproducts.online
+
+[rabbitmq]
 rabbitmq.vrpproducts.online

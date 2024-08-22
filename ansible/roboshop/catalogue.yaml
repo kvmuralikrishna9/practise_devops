@@ -1,0 +1,105 @@
+- name: Setting up the catalouge microservice
+  hosts: catalogue
+  user: ansible
+  become: true
+
+  tasks:
+    - name: Adding Nodejs repo
+      ansible.builtin.shell: curl -sL https://rpm.nodesource.com/setup_lts.x | bash
+
+    - name: installing nodejs
+      ansible.builtin.yum:
+        name: nodejs
+        state: installed
+
+    - name: start and enable nodejs
+      ansible.builtin.service:
+        name: nodejs
+        state: started
+        enabled: true
+
+    - name: checking user roboshop existing status
+      ansible.builtin.command: id roboshop
+      register: userexist
+      user_errors: true
+
+    - when: userexist.rc != 0
+      name: Creating roboshop user
+      ansible.builtin.user:
+        name: roboshop
+
+    - name: checking app directory existing status
+      ansible.builtin.stat:
+        path: /app
+      register: directoryexist
+
+    - name: Print directoryexist output
+      ansible.builtin.debug:
+        msg: "output: {{directoryexist}}"
+
+    - when: directoryexist.rc !=0
+      name: create app directory
+      ansible.builtin.file:
+        path: /app
+        state: directory
+
+    - name: Download application code for catalogue 
+      ansible.builtin.get_url:
+        url: https://roboshop-builds.s3.amazonaws.com/catalogue.zip
+        dest: /tmp
+
+    - name: unarchive the catalogue code
+      ansible.builtin.unarchive:
+        src: /tmp/catalogue.zip
+        dest: /app
+        remote_src: yes
+
+    - name: changing the directory
+      ansible.builtin.command: npm install
+      args:
+          chdir: /app
+
+    - name: adding catalogue daemon service file.
+      ansible.builtin.copy:
+        src: /config_files/catalogue.service
+        dest: /etc/systemd/system/
+
+    - name: Reloading daemon services
+      ansible.builtin.systemd:
+        daemon_reload: true
+
+    - name: Start & enable catalogue service
+      ansible.builtin.service:
+        name: catalouge
+        state: started
+        enabled: true
+
+    - name: adding mondgdb repo
+      ansible.builtin.copy:
+        src: /config_files/mongo.repo
+        dest: /etc/yum.repos.d/
+
+    - name: install mondodb clinet
+      ansible.builtin.yum:
+        name: mongodb-mongosh
+        state: installed
+        enabled: true
+
+    - name: Load Schema
+      ansible.builtin.command: mongosh --host mongodb.vrpproducts.online < /app/schema/catalogue.js
+
+    - name: Start & enable catalogue service
+      ansible.builtin.service:
+        name: catalouge
+        state: restarted
+      
+    
+
+
+
+    
+
+
+    
+
+    
