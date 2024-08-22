@@ -29,9 +29,9 @@
 
     - name: Print directoryexist output
       ansible.builtin.debug:
-        msg: "output: {{directoryexist}}"
+        msg: "output: {{ directoryexist }}"
 
-    - when: directoryexist.rc !=0
+    - when: directoryexist.stat.exists == False
       name: create app directory
       ansible.builtin.file:
         path: /app
