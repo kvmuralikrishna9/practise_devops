@@ -1,4 +1,4 @@
-- name: Setting up the catalouge microservice
+- name: Setting up the catalogue microservice
   hosts: catalogue
   user: ansible
   become: true
@@ -21,7 +21,7 @@
     - name: checking user roboshop existing status
       ansible.builtin.command: id roboshop
       register: userexist
-      user_errors: true
+      ignore_errors: true
 
     - when: userexist.rc != 0
       name: Creating roboshop user
@@ -61,7 +61,7 @@
 
     - name: adding catalogue daemon service file.
       ansible.builtin.copy:
-        src: /config_files/catalogue.service
+        src: config_files/catalogue.service
         dest: /etc/systemd/system/
 
     - name: Reloading daemon services
@@ -70,27 +70,26 @@
 
     - name: Start & enable catalogue service
       ansible.builtin.service:
-        name: catalouge
+        name: catalogue
         state: started
         enabled: true
 
-    - name: adding mondgdb repo
+    - name: adding mongodb repo
       ansible.builtin.copy:
-        src: /config_files/mongo.repo
+        src: config_files/mongo.repo
         dest: /etc/yum.repos.d/
 
     - name: install mondodb clinet
       ansible.builtin.yum:
         name: mongodb-mongosh
         state: installed
-        enabled: true
 
     - name: Load Schema
       ansible.builtin.command: mongosh --host mongodb.vrpproducts.online < /app/schema/catalogue.js
 
     - name: Start & enable catalogue service
       ansible.builtin.service:
-        name: catalouge
+        name: catalogue
         state: restarted
       
     
