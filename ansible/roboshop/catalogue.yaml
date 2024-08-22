@@ -16,8 +16,7 @@
       ansible.builtin.service:
         name: nodejs
         state: started
-        enabled: true
-
+      
     - name: checking user roboshop existing status
       ansible.builtin.command: id roboshop
       register: userexist
