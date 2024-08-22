@@ -84,7 +84,7 @@
         state: absent
         
     - name: Installing openssl3
-      ansible.builtin.command: 
+      ansible.builtin.yum: 
         name: openssl3
         state: installed
         
