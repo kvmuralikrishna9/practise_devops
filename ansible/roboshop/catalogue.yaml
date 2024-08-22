@@ -79,20 +79,23 @@
         state: installed
 
     - name: Load Schema
-      ansible.builtin.command: mongosh --host mongodb.vrpproducts.online < /app/schema/catalogue.js
+      ansible.builtin.command: 
+        - mongosh --host mongodb.vrpproducts.online < /app/schema/catalogue.js
 
-    - name: Start & enable catalogue service
+    - name: uninstall mondodb clinet
+      ansible.builtin.yum:
+        name: mongodb-mongosh
+        state: absent
+        
+    - name: Installing openssl3
+      ansible.builtin.command: yum install mongodb-mongosh-shared-openssl3
+        
+    - name: install mondodb clinet
+      ansible.builtin.yum:
+        name: mongodb-mongosh
+        state: installed
+
+    - name: restarting catalogue service
       ansible.builtin.service:
         name: catalogue
         state: restarted
-      
-    
-
-
-
-    
-
-
-    
-
-    
