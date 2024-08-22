@@ -85,7 +85,7 @@
         
     - name: Installing openssl3
       ansible.builtin.command: 
-        name: mongodb-mongosh-shared-openssl3
+        name: openssl3
         state: installed
         
     - name: install mondodb clinet
