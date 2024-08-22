@@ -17,9 +17,9 @@
 
     - name: Allowing the DB access from internet
       ansible.builtin.replace:
-      path: /etc/mongod.conf
-      regexp: '127.0.0.1'
-      replace: '0.0.0.0'
+        path: /etc/mongod.conf
+        regexp: '127.0.0.1'
+        replace: '0.0.0.0'
 
     - name: enable mongodb-org service
       ansible.builtin.service:
