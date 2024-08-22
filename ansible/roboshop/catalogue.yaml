@@ -78,10 +78,6 @@
         name: mongodb-mongosh
         state: installed
 
-    - name: Load Schema
-      ansible.builtin.command: 
-        - mongosh --host mongodb.vrpproducts.online < /app/schema/catalogue.js
-
     - name: uninstall mondodb clinet
       ansible.builtin.yum:
         name: mongodb-mongosh
@@ -94,6 +90,9 @@
       ansible.builtin.yum:
         name: mongodb-mongosh
         state: installed
+
+    - name: Load Schema
+      ansible.builtin.command: mongosh --host mongodb.vrpproducts.online < /app/schema/catalogue.js
 
     - name: restarting catalogue service
       ansible.builtin.service:
