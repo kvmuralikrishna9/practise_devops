@@ -84,7 +84,9 @@
         state: absent
         
     - name: Installing openssl3
-      ansible.builtin.command: yum install mongodb-mongosh-shared-openssl3
+      ansible.builtin.command: 
+        name: mongodb-mongosh-shared-openssl3
+        state: installed
         
     - name: install mondodb clinet
       ansible.builtin.yum:
