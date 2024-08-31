@@ -73,26 +73,43 @@
         src: config_files/mongo.repo
         dest: /etc/yum.repos.d/
 
-    - name: install mondodb clinet
-      ansible.builtin.yum:
-        name: mongodb-mongosh
-        state: installed
+    # - name: install mondodb clinet
+    #   ansible.builtin.yum:
+    #     name: mongodb-mongosh
+    #     state: installed
 
     # - name: uninstall mondodb clinet
     #   ansible.builtin.yum:
     #     name: mongodb-mongosh
     #     state: absent
         
-    - name: Installing openssl3
-      ansible.builtin.yum: 
-        name: mongodb-mongosh-shared-openssl3
-        state: present
+    # - name: Installing openssl3
+    #   ansible.builtin.yum: 
+    #     name: mongodb-mongosh-shared-openssl3
+    #     state: present
         
     # - name: install mondodb clinet
     #   ansible.builtin.yum:
     #     name: mongodb-mongosh
     #     state: installed
 
+    - name: Install mongosh 
+      ansible.builtin.shell: yum install mongodb-mongosh
+
+    - name: remove mongosh
+      ansible.builtin.shell: yum remove mongodb-mongosh
+
+    - name: Installing openssl
+      ansible.builtin.shell: yum install mongodb-mongosh-shared-openssl3
+  
+    - name: Install mongosh 
+      ansible.builtin.shell: yum install mongodb-mongosh
+
+    - name: restarting catalogue service
+      ansible.builtin.service:
+        name: catalogue
+        state: restarted
+      
     - name: Load Schema
       ansible.builtin.command: mongosh --host mongodb.vrpproducts.online < /app/schema/catalogue.js
 
