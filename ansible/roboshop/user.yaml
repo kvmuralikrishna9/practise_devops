@@ -72,7 +72,7 @@
     - name: adding mongodb repo
       ansible.builtin.copy:
         src: config_files/mongodb.repo
-        dest: /etc/dnf.repos.d/
+        dest: /etc/yum.repos.d/
 
     - name: install mondodb clinet
       ansible.builtin.dnf:

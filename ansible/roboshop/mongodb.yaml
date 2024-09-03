@@ -7,7 +7,7 @@
     - name: install mango repo
       ansible.builtin.copy:
         src: config_files/mongodb.repo
-        dest: /etc/dnf.repos.d/
+        dest: /etc/yum.repos.d/
 
     - name: install Mongodb
       ansible.builtin.dnf:
