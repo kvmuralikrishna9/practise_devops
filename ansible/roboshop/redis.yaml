@@ -11,7 +11,7 @@
 
     - name: Allowing the Redis access from internet
       ansible.builtin.replace:
-        path: /etc/redis/redis6.conf
+        path: /etc/redis6/redis6.conf
         regexp: '127.0.0.1'
         replace: '0.0.0.0'
 
