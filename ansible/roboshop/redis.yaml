@@ -1,0 +1,22 @@
+- name: Creating Redis microservice
+  hosts: redis
+  user: ansible
+  become: true
+
+  tasks:
+    - name: Install Redis
+      ansible.builtin.dnf:
+        name: redis
+        state: installed
+
+    - name: Allowing the Redis access from internet
+      ansible.builtin.replace:
+        path: /etc/redis/redis.conf
+        regexp: '127.0.0.1'
+        replace: '0.0.0.0'
+
+    - name: Start and Enable Redis
+      ansible.builtin.service:
+        name: redis
+        state: started
+        enabled: true

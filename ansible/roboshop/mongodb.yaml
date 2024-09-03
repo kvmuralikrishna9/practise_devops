@@ -1,4 +1,4 @@
-- name: Creating the Mongodb microservice
+- name: Creating Mongodb microservice
   hosts: mongodb
   user: ansible
   become: true
@@ -10,7 +10,7 @@
         dest: /etc/yum.repos.d/
 
     - name: install Mongodb
-      ansible.builtin.yum:
+      ansible.builtin.dnf:
         name: mongodb-org
         state: installed
         
@@ -20,7 +20,7 @@
         state: started
         enabled: true
 
-    - name: Allowing the DB access from internet
+    - name: Allowing the MongoDB access from internet
       ansible.builtin.replace:
         path: /etc/mongod.conf
         regexp: '127.0.0.1'

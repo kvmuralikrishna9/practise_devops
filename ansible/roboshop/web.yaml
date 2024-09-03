@@ -1,11 +1,11 @@
-- name: Insatll nginx and host the webserver
+- name: Creating the Nginx webserver 
   hosts: web
   user: ansible
   become: yes
   
   tasks:
   - name: Install_nginx
-    ansible.builtin.yum:
+    ansible.builtin.dnf:
       name: nginx
       state: installed
 

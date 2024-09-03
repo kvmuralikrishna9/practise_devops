@@ -1,0 +1,74 @@
+- name: Creating the user microservice
+  hosts: user
+  user: ansible
+  become: true
+
+  tasks:
+    - name: setup NPM source
+      ansible.builtin.shell: "curl -sL https://rpm.nodesource.com/setup_lts.x | bash"
+
+    - name: install nodejs
+      ansible.builtin.dnf:
+        name: nodejs
+        state: installed
+
+    - name: Checking user "roboshop" existing
+      ansible.builtin.command: id roboshop
+      register: id_output
+      ignore_errors: true
+
+    - name: Print user exists
+      ansible.builtin.debug:
+        msg: "roboshop user is {{ id_output }}"
+
+    - when: id_output.rc !=0
+      name: create user roboshop
+      ansible.builtin.user:
+        name: roboshop
+
+    - name: checking the app directory existing
+      ansible.builtin.stat:
+        path: /app
+      register: app_dir
+
+    - name: Print app_dir status
+      ansible.builtin.debug:
+        msg: "app directory is {{ app_dir }}"
+
+    - when: app_dir.stat.exists == False
+      name: Create app directory
+      ansible.builtin.file:
+        dest: /app
+        state: directory
+
+    - name: Downloading user.zip file
+      ansible.builtin.get_url:
+        url: https://roboshop-builds.s3.amazonaws.com/user.zip
+        dest: /tmp
+
+    - name: Unarchiving
+      ansible.builtin.unarchive:
+        src: /tmp/user.zip
+        dest: /app
+        remote_src: yes
+
+    - name: install dependencies
+      ansible.builtin.command: npm install
+      args:
+        chdir: /app
+
+    - name: copy user service file
+      ansible.builtin.copy:
+        src: config_files/user.service
+        dest: /etc/systemd/system
+
+    - name: daemon_reload & enabling user
+      ansible.builtin.systemd:
+        name: user.service
+        state: started
+        enabled: true
+        daemon_reload: yes
+
+    
+    
+

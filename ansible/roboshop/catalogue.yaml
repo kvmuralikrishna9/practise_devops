@@ -1,4 +1,4 @@
-- name: Setting up the catalogue microservice
+- name: Creating catalogue microservice
   hosts: catalogue
   user: ansible
   become: true
@@ -8,7 +8,7 @@
       ansible.builtin.shell: curl -sL https://rpm.nodesource.com/setup_lts.x | bash
 
     - name: installing nodejs
-      ansible.builtin.yum:
+      ansible.builtin.dnf:
         name: nodejs
         state: installed
       
@@ -74,7 +74,7 @@
         dest: /etc/yum.repos.d/
 
     - name: install mondodb clinet
-      ansible.builtin.yum:
+      ansible.builtin.dnf:
         name: mongodb-mongosh
         state: installed
 
@@ -110,14 +110,16 @@
     #     name: catalogue
     #     state: restarted
 
-    - name: Rename openssl
-      ansible.builtin.shell: mv /etc/pki/tls/openssl.cnf /etc/pki/tls/old_openssl.cnf
 
-    - name: Rename openssl
-      ansible.builtin.shell: mv /etc/ssl/openssl.cnf /etc/ssl/old_openssl.cnf
+
+    # - name: Rename openssl
+    #   ansible.builtin.shell: mv /etc/pki/tls/openssl.cnf /etc/pki/tls/old_openssl.cnf
+
+    # - name: Rename openssl
+    #   ansible.builtin.shell: mv /etc/ssl/openssl.cnf /etc/ssl/old_openssl.cnf
       
     - name: Load Schema
-      ansible.builtin.command: mongosh --host mongodb.vrpproducts.online < /app/schema/catalogue.js
+      ansible.builtin.command: mongosh --host MONGODB-SERVER-IPADDRESS < /app/schema/catalogue.js
 
     - name: restarting catalogue service
       ansible.builtin.service:
