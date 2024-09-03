@@ -86,7 +86,7 @@
       ansible.builtin.shell: mv /etc/ssl/openssl.cnf /etc/ssl/old_openssl.cnf
 
     - name: Load Schema
-      ansible.builtin.command: mongosh --host mongodb.vrpproducts.online < /app/schema/catalogue.js
+      ansible.builtin.command: mongosh --host mongodb.vrpproducts.online < /app/schema/user.js
 
     - name: restarting catalogue service
       ansible.builtin.service:
