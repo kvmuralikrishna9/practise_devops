@@ -112,10 +112,10 @@
 
 
 
-    - name: Rename openssl
+    - name: Rename openssl_1
       ansible.builtin.shell: mv /etc/pki/tls/openssl.cnf /etc/pki/tls/old_openssl.cnf
 
-    - name: Rename openssl
+    - name: Rename openss_2
       ansible.builtin.shell: mv /etc/ssl/openssl.cnf /etc/ssl/old_openssl.cnf
       
     - name: Load Schema
