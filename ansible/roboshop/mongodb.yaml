@@ -6,7 +6,7 @@
   tasks:
     - name: install mango repo
       ansible.builtin.copy:
-        src: config_files/mongo.repo
+        src: config_files/mongodb.repo
         dest: /etc/yum.repos.d/
 
     - name: install Mongodb
