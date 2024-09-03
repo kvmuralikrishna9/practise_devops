@@ -71,7 +71,7 @@
     - name: adding mongodb repo
       ansible.builtin.copy:
         src: config_files/mongodb.repo
-        dest: /etc/yum.repos.d/
+        dest: /etc/dnf.repos.d/
 
     - name: install mondodb clinet
       ansible.builtin.dnf:
@@ -79,31 +79,31 @@
         state: installed
 
     # - name: uninstall mondodb clinet
-    #   ansible.builtin.yum:
+    #   ansible.builtin.dnf:
     #     name: mongodb-mongosh
     #     state: absent
         
     # - name: Installing openssl3
-    #   ansible.builtin.yum: 
+    #   ansible.builtin.dnf: 
     #     name: mongodb-mongosh-shared-openssl3
     #     state: present
         
     # - name: install mondodb clinet
-    #   ansible.builtin.yum:
+    #   ansible.builtin.dnf:
     #     name: mongodb-mongosh
     #     state: installed
 
     # - name: Install mongosh 
-    #   ansible.builtin.shell: yum install mongodb-mongosh
+    #   ansible.builtin.shell: dnf install mongodb-mongosh
 
     # - name: remove mongosh
-    #   ansible.builtin.shell: yum remove mongodb-mongosh
+    #   ansible.builtin.shell: dnf remove mongodb-mongosh
 
     # - name: Installing openssl
-    #   ansible.builtin.shell: yum install mongodb-mongosh-shared-openssl3
+    #   ansible.builtin.shell: dnf install mongodb-mongosh-shared-openssl3
 
     # - name: Install mongosh 
-    #   ansible.builtin.shell: yum install mongodb-mongosh
+    #   ansible.builtin.shell: dnf install mongodb-mongosh
 
     # - name: restarting catalogue service
     #   ansible.builtin.service:
@@ -112,11 +112,11 @@
 
 
 
-    # - name: Rename openssl
-    #   ansible.builtin.shell: mv /etc/pki/tls/openssl.cnf /etc/pki/tls/old_openssl.cnf
+    - name: Rename openssl
+      ansible.builtin.shell: mv /etc/pki/tls/openssl.cnf /etc/pki/tls/old_openssl.cnf
 
-    # - name: Rename openssl
-    #   ansible.builtin.shell: mv /etc/ssl/openssl.cnf /etc/ssl/old_openssl.cnf
+    - name: Rename openssl
+      ansible.builtin.shell: mv /etc/ssl/openssl.cnf /etc/ssl/old_openssl.cnf
       
     - name: Load Schema
       ansible.builtin.command: mongosh --host MONGODB-SERVER-IPADDRESS < /app/schema/catalogue.js
