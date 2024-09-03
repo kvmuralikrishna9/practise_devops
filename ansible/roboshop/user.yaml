@@ -90,7 +90,7 @@
 
     - name: restarting catalogue service
       ansible.builtin.service:
-        name: catalogue
+        name: user.service
         state: restarted
     
 
