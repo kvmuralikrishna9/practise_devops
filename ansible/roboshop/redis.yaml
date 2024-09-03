@@ -6,7 +6,7 @@
   tasks:
     - name: Install Redis
       ansible.builtin.dnf:
-        name: redis
+        name: redis6
         state: installed
 
     - name: Allowing the Redis access from internet

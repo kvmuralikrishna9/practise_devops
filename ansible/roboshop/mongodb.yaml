@@ -1,13 +1,13 @@
 - name: Creating Mongodb microservice
   hosts: mongodb
   user: ansible
-  become: true
+  become: yes
 
   tasks:
     - name: install mango repo
       ansible.builtin.copy:
         src: config_files/mongodb.repo
-        dest: /etc/yum.repos.d/
+        dest: /etc/dnf.repos.d/
 
     - name: install Mongodb
       ansible.builtin.dnf:
