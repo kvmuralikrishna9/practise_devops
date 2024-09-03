@@ -69,6 +69,28 @@
         enabled: true
         daemon_reload: yes
 
-    
+    - name: adding mongodb repo
+      ansible.builtin.copy:
+        src: config_files/mongodb.repo
+        dest: /etc/dnf.repos.d/
+
+    - name: install mondodb clinet
+      ansible.builtin.dnf:
+        name: mongodb-mongosh
+        state: installed
+
+    - name: Rename openssl_1
+      ansible.builtin.shell: mv /etc/pki/tls/openssl.cnf /etc/pki/tls/old_openssl.cnf
+
+    - name: Rename openss_2
+      ansible.builtin.shell: mv /etc/ssl/openssl.cnf /etc/ssl/old_openssl.cnf
+
+    - name: Load Schema
+      ansible.builtin.command: mongosh --host mongodb.vrpproducts.online < /app/schema/catalogue.js
+
+    - name: restarting catalogue service
+      ansible.builtin.service:
+        name: catalogue
+        state: restarted
     
 
