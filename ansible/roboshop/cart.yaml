@@ -64,6 +64,7 @@
 
     - name: Load the Daemon service
       ansible.builtin.systemd:
+        name: cart.service
         state: reloaded
 
     - name: Restart cart service
