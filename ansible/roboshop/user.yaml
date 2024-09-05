@@ -33,7 +33,7 @@
 
     - name: Print app_dir status
       ansible.builtin.debug:
-        msg: "app directory is {{ app_dir }}"
+        msg: "app directory exists {{ app_dir }}"
 
     - when: app_dir.stat.exists == False
       name: Create app directory
@@ -44,7 +44,7 @@
     - name: Downloading user.zip file
       ansible.builtin.get_url:
         url: https://roboshop-builds.s3.amazonaws.com/user.zip
-        dest: /tmp
+        dest: /tmp/user.zip
 
     - name: Unarchiving
       ansible.builtin.unarchive:
