@@ -14,17 +14,17 @@
 
     - name: checking user "roboshop" existing
       ansible.builtin.command: id roboshop
-      register: id_output #output is variable name
+      register: id_output   #output is variable name
       ignore_errors: true
 
     - name: Print the user state
       ansible.builtin.debug:
-        msg: "roboshop user is {{ id_output }}"
+        msg: "roboshop user exists {{ id_output }}"
 
-    - when: id_output.rc !=0
-      name: Creating user "roboshop"
+    - name: Creating user "roboshop"
       ansible.builtin.user:
         name: roboshop 
+      when: id_output.rc !=0
 
     - name: Checking directory "/app" existing
       ansible.builtin.stat:
@@ -35,16 +35,16 @@
       ansible.builtin.debug:
         msg: "app directory is {{ app_dir }}"
 
-    - when: app_dir.stat.exists == False
-      name: create app directory
+    - name: create app directory
       ansible.builtin.file:
         path: /app
         state: directory
+      when: app_dir.stat.exists == False
 
     - name: Download cart.zip file
       ansible.builtin.get_url:
         url: https://roboshop-builds.s3.amazonaws.com/cart.zip
-        dest: /tmp
+        dest: /tmp/cart.zip
 
     - name: Unarchive a file that is already on the remote machine
       ansible.builtin.unarchive:
@@ -61,13 +61,14 @@
       ansible.builtin.copy:
         src: config_files/cart.service
         dest: /etc/systemd/system
-    
+
     - name: Load the Daemon service
       ansible.builtin.systemd:
+        state: reloaded
+
+    - name: Restart cart service
+      ansible.builtin.service:
         name: cart.service
         state: restarted
-        daemon_reload: true
-
-    
-
-
+      tags:
+        - restart

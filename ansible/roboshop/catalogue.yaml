@@ -110,8 +110,6 @@
     #     name: catalogue
     #     state: restarted
 
-
-
     - name: Rename openssl_1
       ansible.builtin.shell: mv /etc/pki/tls/openssl.cnf /etc/pki/tls/old_openssl.cnf
 
@@ -125,3 +123,5 @@
       ansible.builtin.service:
         name: catalogue.service
         state: restarted
+      tags:
+        - restart

@@ -9,6 +9,12 @@
         name: redis6
         state: installed
 
+    - name: Start and Enable Redis
+      ansible.builtin.service:
+        name: redis6
+        state: started
+        enabled: true
+
     - name: Allowing the Redis access from internet
       ansible.builtin.replace:
         path: /etc/redis6/redis6.conf
@@ -18,5 +24,6 @@
     - name: Start and Enable Redis
       ansible.builtin.service:
         name: redis6
-        state: started
-        enabled: true
+        state: restarted
+      tags:
+        - restart

@@ -4,7 +4,7 @@
   become: yes
   
   tasks:
-  - name: Install_nginx
+  - name: Install Nginx
     ansible.builtin.dnf:
       name: nginx
       state: installed
@@ -15,7 +15,7 @@
       state: started
       enabled: yes
 
-  - name: Remove default nginx files
+  - name: Remove default Nginx files
     ansible.builtin.file:
       path: /usr/share/nginx/html
       state: absent
@@ -39,9 +39,12 @@
   - name: Copy roboshop.conf
     ansible.builtin.copy:
       src: config_files/roboshop.conf
-      dest: /etc/ngnix/default.d/
+      dest: /etc/nginx/default.d/
 
   - name: Restart nginx
     ansible.builtin.service:
       name: nginx
       state: restarted
+    tags:
+      - restart
+    

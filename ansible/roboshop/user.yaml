@@ -92,5 +92,7 @@
       ansible.builtin.service:
         name: user.service
         state: restarted
+      tags:
+        - restart
     
 
