@@ -78,38 +78,6 @@
         name: mongodb-mongosh
         state: installed
 
-    # - name: uninstall mondodb clinet
-    #   ansible.builtin.dnf:
-    #     name: mongodb-mongosh
-    #     state: absent
-        
-    # - name: Installing openssl3
-    #   ansible.builtin.dnf: 
-    #     name: mongodb-mongosh-shared-openssl3
-    #     state: present
-        
-    # - name: install mondodb clinet
-    #   ansible.builtin.dnf:
-    #     name: mongodb-mongosh
-    #     state: installed
-
-    # - name: Install mongosh 
-    #   ansible.builtin.shell: dnf install mongodb-mongosh
-
-    # - name: remove mongosh
-    #   ansible.builtin.shell: dnf remove mongodb-mongosh
-
-    # - name: Installing openssl
-    #   ansible.builtin.shell: dnf install mongodb-mongosh-shared-openssl3
-
-    # - name: Install mongosh 
-    #   ansible.builtin.shell: dnf install mongodb-mongosh
-
-    # - name: restarting catalogue service
-    #   ansible.builtin.service:
-    #     name: catalogue
-    #     state: restarted
-
     - name: Rename openssl_1
       ansible.builtin.shell: mv /etc/pki/tls/openssl.cnf /etc/pki/tls/old_openssl.cnf
 

@@ -1,18 +1,18 @@
-- name: Creating the user microservice
+- name: Creating User Microservice
   hosts: user
   user: ansible
   become: true
 
   tasks:
-    - name: setup NPM source
+    - name: setup NPM Source
       ansible.builtin.shell: "curl -sL https://rpm.nodesource.com/setup_lts.x | bash"
 
-    - name: install nodejs
+    - name: Install Nodejs
       ansible.builtin.dnf:
         name: nodejs
         state: installed
 
-    - name: Checking user "roboshop" existing
+    - name: Checking User "roboshop" existing
       ansible.builtin.command: id roboshop
       register: id_output
       ignore_errors: true
@@ -21,27 +21,27 @@
       ansible.builtin.debug:
         msg: "roboshop user is {{ id_output }}"
 
-    - when: id_output.rc !=0
-      name: create user roboshop
+    - name: create user roboshop
       ansible.builtin.user:
         name: roboshop
+      when: id_output.rc !=0
 
     - name: checking the app directory existing
       ansible.builtin.stat:
         path: /app
       register: app_dir
 
-    - name: Print app_dir status
+    - name: Print "app" Directory Status
       ansible.builtin.debug:
         msg: "app directory exists {{ app_dir }}"
 
-    - when: app_dir.stat.exists == False
-      name: Create app directory
+    - name: Create "app" Directory
       ansible.builtin.file:
         dest: /app
         state: directory
+      when: app_dir.stat.exists == False
 
-    - name: Downloading user.zip file
+    - name: Downloading "user.zip"
       ansible.builtin.get_url:
         url: https://roboshop-builds.s3.amazonaws.com/user.zip
         dest: /tmp/user.zip
@@ -57,7 +57,7 @@
       args:
         chdir: /app
 
-    - name: copy user service file
+    - name: Copy user service file
       ansible.builtin.copy:
         src: config_files/user.service
         dest: /etc/systemd/system

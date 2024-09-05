@@ -1,5 +1,5 @@
 - name: Creating Redis microservice
-  hosts: redis
+  hosts: redis6
   user: ansible
   become: true
 

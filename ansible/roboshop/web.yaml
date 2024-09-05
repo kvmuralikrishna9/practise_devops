@@ -1,4 +1,4 @@
-- name: Creating the Nginx webserver 
+- name: Creating Nginx Webserver 
   hosts: web
   user: ansible
   become: yes
@@ -9,39 +9,39 @@
       name: nginx
       state: installed
 
-  - name: Start_Enable Nginx
+  - name: Start & Enable Nginx
     ansible.builtin.service:
       name: nginx
       state: started
       enabled: yes
 
-  - name: Remove default Nginx files
+  - name: Remove Default Nginx Files
     ansible.builtin.file:
       path: /usr/share/nginx/html
       state: absent
     
-  - name: create html directory
+  - name: Checking HTML Directory
     ansible.builtin.file:
       path: /usr/share/nginx/html
       state: directory
 
-  - name: Download the frontend content
+  - name: Download Frontend Content
     ansible.builtin.get_url:
       url: https://roboshop-builds.s3.amazonaws.com/web.zip
       dest: /tmp/web.zip
 
-  - name: Extract the frontend content
+  - name: Extract Frontend Content
     ansible.builtin.unarchive:
       src: /tmp/web.zip
       dest: /usr/share/nginx/html
       remote_src: yes
 
-  - name: Copy roboshop.conf
+  - name: Copying "roboshop.conf" File
     ansible.builtin.copy:
       src: config_files/roboshop.conf
       dest: /etc/nginx/default.d/
 
-  - name: Restart nginx
+  - name: Restart Nginx
     ansible.builtin.service:
       name: nginx
       state: restarted
