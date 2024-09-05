@@ -75,7 +75,7 @@
 
     - name: install mondodb clinet
       ansible.builtin.dnf:
-        name: mongodb-org
+        name: mongodb-mongosh
         state: installed
 
     # - name: uninstall mondodb clinet
