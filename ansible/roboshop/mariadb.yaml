@@ -1,0 +1,22 @@
+- name: Cretaing MariaDB Microserice
+  hosts: mariadb
+  user: ansible
+  become: yes
+
+  tasks:
+    - name: Install MariaDB
+      ansible.builtin.dnf:
+        name: mariadb105-server
+        state: installed
+
+    - name: Install MariaDB
+      ansible.builtin.service:
+        name: mariadb.service
+        state: started
+        enabled: yes
+
+    
+        
+
+    
+

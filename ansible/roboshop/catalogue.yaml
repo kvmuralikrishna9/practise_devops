@@ -14,28 +14,28 @@
       
     - name: checking user roboshop existing status
       ansible.builtin.command: id roboshop
-      register: userexist
+      register: id_state
       ignore_errors: true
 
-    - when: userexist.rc != 0
-      name: Creating roboshop user
+    - name: Creating roboshop user
       ansible.builtin.user:
         name: roboshop
+      when: id_state.rc != 0
 
     - name: checking app directory existing status
       ansible.builtin.stat:
         path: /app
-      register: directoryexist
+      register: app_dir
 
-    - name: Print directoryexist output
+    - name: Print directory State
       ansible.builtin.debug:
-        msg: "output: {{ directoryexist }}"
+        msg: "'/app' state is: {{ app_dir }}"
 
-    - when: directoryexist.stat.exists == False
-      name: create app directory
+    - name: create app directory
       ansible.builtin.file:
         path: /app
         state: directory
+      when: app_dir.stat.exists == False
 
     - name: Download application code for catalogue 
       ansible.builtin.get_url:

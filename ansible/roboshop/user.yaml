@@ -14,17 +14,17 @@
 
     - name: Checking User "roboshop" existing
       ansible.builtin.command: id roboshop
-      register: id_output
+      register: id_state
       ignore_errors: true
 
     - name: Print user exists
       ansible.builtin.debug:
-        msg: "roboshop user is {{ id_output }}"
+        msg: "roboshop user is {{ id_state }}"
 
     - name: create user roboshop
       ansible.builtin.user:
         name: roboshop
-      when: id_output.rc !=0
+      when: id_state.rc !=0
 
     - name: checking the app directory existing
       ansible.builtin.stat:

@@ -1,0 +1,77 @@
+- name: Creating Dispatch Microservice
+  hosts: dispatch
+  user: anisible
+  become: yes
+  
+  tasks:
+    - name: Install "Go" Language
+      ansible.builtin.dnf:
+        name: golang 
+        state: installed
+    
+    - name: Checking user "roboshop" state
+      ansible.builtin.command: id roboshop
+      register: id_state
+      ignore_errors: yes
+
+    - name: Print the user state
+      ansible.builtin.debug:
+        msg: "roboshop user exists {{ id_state }}"
+
+    - name: Creating user "roboshop"
+      ansible.builtin.user:
+        name: roboshop 
+      when: id_state.rc !=0
+
+    - name: Checking directory "/app" existing
+      ansible.builtin.stat:
+        path: /app
+      register: app_dir
+
+    - name: Print the directory state
+      ansible.builtin.debug:
+        msg: "app directory is {{ app_dir }}"
+
+    - name: create app directory
+      ansible.builtin.file:
+        path: /app
+        state: directory
+      when: app_dir.stat.exists == False
+
+    - name: Download dispatch.zip file
+      ansible.builtin.get_url:
+        url: https://roboshop-builds.s3.amazonaws.com/dispatch.zip
+        dest: /tmp/dispatch.zip
+
+    - name: Unarchive
+      ansible.builtin.unarchive:
+        src: /tmp/dispatch.zip
+        dest: /app
+        remote_src: yes
+
+    - name: Adding RabbitMQ
+      ansible.builtin.shell: |
+        cd /app 
+        go mod init dispatch
+        go get 
+        go build  
+      args:
+          chdir: /app
+
+    - name: Copying "dispatch.service" file
+      ansible.builtin.copy:
+        src: config_files/dispatch.service
+        dest: /etc/systemd/system/dispatch.service
+
+    - name: Daemon Reload and enable
+      ansible.builtin.systemd:
+        name: dispatch.service
+        daemon_reload: yes
+        enabled: yes
+
+    - name: Restart dispatch.service
+      ansible.builtin.systemd:
+        name: dispatch.service
+        state: restarted
+      tags:
+        - restart
