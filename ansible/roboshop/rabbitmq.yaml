@@ -5,10 +5,9 @@
 
   tasks:
     - name: Adding RabbitMQ
-      ansible.builtin.shell: "{{ item }}" 
-      loops:
-      - curl -s https://packagecloud.io/install/repositories/rabbitmq/erlang/script.rpm.sh | bash
-      - curl -s https://packagecloud.io/install/repositories/rabbitmq/rabbitmq-server/script.rpm.sh | bash
+      ansible.builtin.shell: | 
+        curl -s https://packagecloud.io/install/repositories/rabbitmq/erlang/script.rpm.sh | bash
+        curl -s https://packagecloud.io/install/repositories/rabbitmq/rabbitmq-server/script.rpm.sh | bash
 
     - name: Install RabbitMQ
       ansible.builtin.dnf:
