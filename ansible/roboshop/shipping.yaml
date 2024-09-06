@@ -87,7 +87,7 @@
         enabled: yes
 
     - name: Load Schema
-      ansible.builtin.command: mysql -h mariadb.vrpproducts.online -u root < /app/schema/shipping.sql 
+      ansible.builtin.command: mysql mariadb.vrpproducts.online -u root < /app/schema/shipping.sql 
 
     - name: Start and Enable "shipping.service"
       ansible.builtin.service:
