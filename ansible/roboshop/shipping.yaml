@@ -67,7 +67,7 @@
     - name: Daemon-reload
       ansible.builtin.systemd:
         name: shipping.service
-        state: reloaded
+        daemon_reload: yes
 
     - name: Start and Enable "shipping.service"
       ansible.builtin.service:
