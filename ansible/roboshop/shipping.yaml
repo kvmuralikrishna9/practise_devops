@@ -7,7 +7,7 @@
     - name: Install Maven
       ansible.builtin.dnf:
         name: maven
-        state: started
+        state: installed
 
     - name: Checking User "roboshop"
       ansible.builtin.command: id roboshop
