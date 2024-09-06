@@ -1,7 +1,7 @@
 - name: Creating RabbitMQ microservice
   hosts: rabbitmq
   user: ansible
-  become: user
+  become: ansible
 
   tasks:
     - name: Adding RabbitMQ
