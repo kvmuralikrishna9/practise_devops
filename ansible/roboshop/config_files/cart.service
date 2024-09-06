@@ -2,7 +2,7 @@
 Description = Cart Service
 [Service]
 User=roboshop
-Environment=REDIS_HOST=redis.vrpproducts.online
+Environment=REDIS_HOST=redis6.vrpproducts.online
 Environment=CATALOGUE_HOST=catalogue.vrpproducts.online
 Environment=CATALOGUE_PORT=8080
 ExecStart=/bin/node /app/server.js
