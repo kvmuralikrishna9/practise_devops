@@ -75,10 +75,16 @@
         state: started
         enabled: yes
 
-    - name: install MariaDB-connetor
+    - name: Install MariaDB
       ansible.builtin.dnf:
         name: mariadb105-server
+        state: installed
+
+    - name: Install MariaDB
+      ansible.builtin.service:
+        name: mariadb.service
         state: started
+        enabled: yes
 
     - name: Load Schema
       ansible.builtin.command: mysql -h mariadb.vrpproducts.online -uroot -pP@ssw0rd < /app/schema/shipping.sql 
