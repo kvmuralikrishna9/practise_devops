@@ -1,0 +1,98 @@
+- name: Creating User Microservice
+  hosts: user
+  user: ansible
+  become: true
+
+  tasks:
+    - name: setup NPM Source
+      ansible.builtin.shell: "curl -sL https://rpm.nodesource.com/setup_lts.x | bash"
+
+    - name: Install Nodejs
+      ansible.builtin.dnf:
+        name: nodejs
+        state: installed
+
+    - name: Checking User "roboshop" existing
+      ansible.builtin.command: id roboshop
+      register: id_state
+      ignore_errors: true
+
+    - name: Print user exists
+      ansible.builtin.debug:
+        msg: "roboshop user is {{ id_state }}"
+
+    - name: create user roboshop
+      ansible.builtin.user:
+        name: roboshop
+      when: id_state.rc !=0
+
+    - name: checking the app directory existing
+      ansible.builtin.stat:
+        path: /app
+      register: app_dir
+
+    - name: Print "app" Directory Status
+      ansible.builtin.debug:
+        msg: "app directory exists {{ app_dir }}"
+
+    - name: Create "app" Directory
+      ansible.builtin.file:
+        dest: /app
+        state: directory
+      when: app_dir.stat.exists == False
+
+    - name: Downloading "user.zip"
+      ansible.builtin.get_url:
+        url: https://roboshop-builds.s3.amazonaws.com/user.zip
+        dest: /tmp/user.zip
+
+    - name: Unarchiving
+      ansible.builtin.unarchive:
+        src: /tmp/user.zip
+        dest: /app
+        remote_src: yes
+
+    - name: install dependencies
+      ansible.builtin.command: npm install
+      args:
+        chdir: /app
+
+    - name: Copy user service file
+      ansible.builtin.copy:
+        src: config_files/user.service
+        dest: /etc/systemd/system
+
+    - name: daemon_reload & enabling user
+      ansible.builtin.systemd:
+        name: user.service
+        state: started
+        enabled: true
+        daemon_reload: yes
+
+    - name: adding mongodb repo
+      ansible.builtin.copy:
+        src: config_files/mongodb.repo
+        dest: /etc/yum.repos.d/
+
+    - name: install mondodb clinet
+      ansible.builtin.dnf:
+        name: mongodb-mongosh
+        state: installed
+
+    - name: Rename openssl_1
+      ansible.builtin.shell: mv /etc/pki/tls/openssl.cnf /etc/pki/tls/old_openssl.cnf
+
+    - name: Rename openss_2
+      ansible.builtin.shell: mv /etc/ssl/openssl.cnf /etc/ssl/old_openssl.cnf
+
+    - name: Load Schema
+      ansible.builtin.command: mongosh --host mongodb.vrpproducts.online < /app/schema/user.js
+
+    - name: restarting catalogue service
+      ansible.builtin.service:
+        name: user.service
+        state: restarted
+      tags:
+        - restart
+    
+
