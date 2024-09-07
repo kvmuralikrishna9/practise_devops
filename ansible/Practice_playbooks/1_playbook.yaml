@@ -1,8 +1,0 @@
----
-- name: Check the ping of hosts
-  hosts: db, web
-  user: ansible
-
-  tasks:
-  - name: Ping the hosts
-    ansible.builtin.ping:
