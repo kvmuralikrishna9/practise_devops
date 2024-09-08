@@ -8,6 +8,6 @@ resource "aws_instance" "web" {
 
   tags = { 
     Name     = var.instance_names[count.index]
-    moretags = var.moretags
+    #moretags = var.moretags
   }
 }
