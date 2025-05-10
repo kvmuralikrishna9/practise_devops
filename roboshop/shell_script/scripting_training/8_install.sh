@@ -12,15 +12,15 @@ fi
 yum install mysql -y
 
 if [[ $? -ne 0 ]] ; then
-    echo "mysql Installation failed..."
+    echo -e "\nmysql Installation failed...\n"
 else
-    echo "mysql installtion is sucess"
+    echo -e "/nmysql installtion is sucess\n"
 fi
 
 yum install postfix -y
 
 if [[ $? -ne 0 ]] ; sthen
-    echo "Postfix Installation failed..."
+    echo -e"\nPostfix Installation failed...\n"
 else
-    echo "Postfix installtion is sucess"
+    echo "\nPostfix installtion is sucess\n"
 fi
