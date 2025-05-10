@@ -1,5 +1,8 @@
 #!/bin/bash
 
+script_name=$0
+Date=$(date +%F)
+LOG_File=/tmp/$Date-$script_name.txt
 USERID=$(id -u)
 
 validate (){
@@ -18,8 +21,8 @@ else
     echo "You have previlage to perform this action, continuing . . ."
 fi
 
-yum install mysql -y
-validate $?
+yum install mysql -y &>>$LOG_File
+validate $? "Installing Mysql" &>>$LOG_File
 
-yum install postfix -y
-validate $?
+yum install postfix -y &>>$LOG_File
+validate $? "Installing Postfix" &>>$LOG_File
