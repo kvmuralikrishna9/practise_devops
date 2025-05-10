@@ -7,7 +7,7 @@ USERID=$(id -u)
 
 validate (){
 if [[ $1 -ne 0 ]] ; then
-    echo -e "\n Installation is failure. . .\n"
+    echo -e "\n Installation is failure. . .\n" 
 else
     echo -e "\n Installation is success. . .\n"
 fi
@@ -15,10 +15,10 @@ fi
 
 
 if [[ $USERID -ne "0" ]] ; then
-    echo "You need to be root user to perform this action, exiting . . ."
+    echo "You need to be root user to perform this action, exiting . . ." &>>$LOG_File
     exit 1
 else
-    echo "You have previlage to perform this action, continuing . . ."
+    echo "You have previlage to perform this action, continuing . . ." &>>$LOG_File
 fi
 
 yum install mysql -y &>>$LOG_File
