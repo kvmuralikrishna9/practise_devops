@@ -10,7 +10,7 @@ LOG_FILE=$LOG_DIR/$SCRIPT_NAME_$DATE
 USER_ID=$(id -u)
 PACKAGES=("mysql" "postfix" "git")
 
-if [[ $USER_ID -ne 0]] ; then
+if [[ $USER_ID -ne 0]]; then
     echo -e "\nuser is not the 'root', use root user to continue. . ."
     exit 1
 else
@@ -19,7 +19,7 @@ fi
 
 for i in $@ ; do
     yum list installed $i
-    if [[ $? -ne 0 ]] ; then
+    if [[ $? -ne 0 ]]; then
         echo -e "$i is not installed,,"
         yum install $i -y
     else
