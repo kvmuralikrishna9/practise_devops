@@ -10,4 +10,4 @@ FILES_TO_DELETE=$(find $DELETE_LOGS_FROM -name "*.log" -type f -mtime +14) &>>$O
 while read line ; do 
     echo  "Deleting the old files" &>>$OUTPUT_LOG
     rm -rf $line
-done <<< $FILES_TO_DELETE
+done << $FILES_TO_DELETE
