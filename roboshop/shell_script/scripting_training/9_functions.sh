@@ -7,9 +7,9 @@ USERID=$(id -u)
 
 validate (){
 if [[ $1 -ne 0 ]] ; then
-    echo -e "\n Installation is failure. . .\n" 
+    echo -e "\n $2 Installation is failure. . .\n" 
 else
-    echo -e "\n Installation is success. . .\n"
+    echo -e "\n $2 Installation is success. . .\n"
 fi
 }
 
