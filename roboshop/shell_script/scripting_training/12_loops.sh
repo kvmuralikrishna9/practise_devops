@@ -14,7 +14,7 @@ if [[ $USER_ID -ne 0 ]] ; then
     echo -e "\nuser is not the 'root', use root user to continue. . ."
     exit 1
 else
-    eecho -e "\nuser is 'root', continuing to install the packages. . ."
+    echo -e "\nuser is 'root', continuing to install the packages. . ."
 fi
 
 for i in $@ ; do
