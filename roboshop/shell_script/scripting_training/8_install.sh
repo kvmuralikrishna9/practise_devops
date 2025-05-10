@@ -9,4 +9,18 @@ else
     echo "You have previlage to perform this action, continuing . . ."
 fi
 
-yum install git -y
+yum install mysql -y
+
+if [[ $? -ne 0]] then
+    echo "mysql Installation failed..."
+else
+    echo "mysql installtion is sucess"
+fi
+
+yum install postfix -y
+
+if [[ $? -ne 0]] then
+    echo "Postfix Installation failed..."
+else
+    echo "Postfix installtion is sucess"
+fi
