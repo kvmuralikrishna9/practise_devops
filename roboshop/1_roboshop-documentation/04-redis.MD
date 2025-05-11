@@ -30,9 +30,9 @@ Update listen address from 127.0.0.1 to 0.0.0.0 in /etc/redis.conf & /etc/redis/
 Start & Enable Redis Service
 
 ```
-systemctl enable redis.service
+systemctl enable redis6.service
 ```
 
 ```
-systemctl start redis.service
+systemctl start redis6.service
 ```
