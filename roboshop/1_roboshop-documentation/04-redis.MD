@@ -1,29 +1,21 @@
-# Redis
+# Redis 
+Redis is used for in-memory data storage(Caching) and allows users to access the data of database over API.
 
 ### IF USING AMAZON LINUX 2023, install redis6 instead of simple redis
 
 ```
-dnf install redis6
+dnf install redis6 -y
 ```
-### IF using any other OS plese check which redis will it support
 
-Redis is used for in-memory data storage(Caching) and allows users to access the data of database over API.
+### IF USING ANY OTHER OS PLEASE CHECK WILL REDIS IS SUPPOTED, 
 
 Redis is offering the repo file as a rpm. Lets install it
 
 ```
 yum install https://rpms.remirepo.net/enterprise/remi-release-8.rpm -y
-```
 
-Enable Redis 6.2 from package streams.
-
-```
 yum module enable redis:remi-6.2 -y
-```
 
-Install Redis
-
-```
 dnf install redis -y 
 ```
 
