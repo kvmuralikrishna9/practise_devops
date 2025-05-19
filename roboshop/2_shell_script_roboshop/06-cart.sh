@@ -2,6 +2,8 @@
 
 USERID=$(id -u)
 APPDIR=/app
+SCRITP_NAME=$0
+LOGFILE=/tmp/$0.txt
 
 # Checking the current user and suggest to be root
 if [[ $USER -ne 0 ]] ; then
@@ -10,36 +12,36 @@ if [[ $USER -ne 0 ]] ; then
 fi
 
 # Adding Nodejs repo
-curl -sL https://rpm.nodesource.com/setup_lts.x | bash
+curl -sL https://rpm.nodesource.com/setup_lts.x | bash &>> $LOGFILE
 
 # Installing NodeJS
-dnf install nodejs -y
+dnf install nodejs -y &>> $LOGFILE
 
 # Creating Application user
 id roboshop &>/dev/null
 CMD_STATUS=$?
 
 if [[ $CMD_STATUS -ne 0 ]] ; then 
-    echo -e "\nuser 'roboshop' not found, continuing creating the user\n" #| tee -a $LOGFILE
+    echo -e "\nuser 'roboshop' not found, continuing creating the user\n" | tee -a $LOGFILE
     useradd roboshop
 else
-    echo -e "\nuser 'roboshop' exits, so continuing without creating user\n" #| tee -a $LOGFILE
+    echo -e "\nuser 'roboshop' exits, so continuing without creating user\n" | tee -a $LOGFILE
 fi
 
 # Creating app directory
 
 if [[ ! -d $APPDIR ]] ; then
-    echo -e "\napplication directory not found so creating" #&>> $LOGFILE
+    echo -e "\napplication directory not found so creating" | tee -a $LOGFILE
     mkdir /app
 else
-    echo -e "\napplication directory alreadt exists. . . continuing\n" #&>> $LOGFILE
+    echo -e "\napplication directory alreadt exists. . . continuing\n" | tee -a $LOGFILE
 fi
 
 # Download and install the application code in app directory
 cd /app 
-curl -L -o /tmp/cart.zip https://roboshop-builds.s3.amazonaws.com/cart.zip
-unzip /tmp/cart.zip
-npm install
+curl -L -o /tmp/cart.zip https://roboshop-builds.s3.amazonaws.com/cart.zip &>> $LOGFILE
+unzip /tmp/cart.zip &>> $LOGFILE
+npm install &>> $LOGFILE
 
 # Created and Enable SystemD user Service
 cat << EOF > /etc/systemd/system/cart.service
@@ -57,5 +59,5 @@ SyslogIdentifier=cart
 WantedBy=multi-user.target
 EOF
 
-systemctl daemon-reload
-systemctl enable --now cart.service
+systemctl daemon-reload &>> $LOGFILE
+systemctl enable --now cart.service | tee -a $LOGFILE

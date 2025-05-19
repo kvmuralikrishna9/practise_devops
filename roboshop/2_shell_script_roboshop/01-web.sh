@@ -11,18 +11,18 @@ if [[ $USER -ne 0 ]] ; then
 fi
 
 # Installing and Enable the Nginix servive
-dnf install nginx -y #&>> $LOGFILE
-systemctl enable --now nginx.service #&>> $LOGFILE
-echo -e "\nInstalled and enabled the nginx and service" #| tee -a $LOGFILE
+dnf install nginx -y &>> $LOGFILE
+systemctl enable --now nginx.service &>> $LOGFILE
+echo -e "\nInstalled and enabled the nginx and service" | tee -a $LOGFILE
 
 #Removing the Nginx default html files
 rm -rf /usr/share/nginx/html/*
 
 # Downloading the web configuraton files from url
-curl -o /tmp/web.zip https://roboshop-builds.s3.amazonaws.com/web.zip #&>> $LOGFILE
+curl -o /tmp/web.zip https://roboshop-builds.s3.amazonaws.com/web.zip &>> $LOGFILE
 cd /usr/share/nginx/html
-unzip /tmp/web.zip #&>> $LOGFILE
-echo -e "\nDownloaded web configuraton files" #| tee -a $LOGFILE
+unzip /tmp/web.zip &>> $LOGFILE
+echo -e "\nDownloaded web configuraton files" | tee -a $LOGFILE
 
 # Adding the proxy configuration file
 cat <<EOF > /etc/nginx/default.d/roboshop.conf
@@ -43,8 +43,7 @@ location /health {
   access_log off;
 }
 EOF
-echo -e "\nAdded proxy configuration file" #| tee -a $LOGFILE
+echo -e "\nAdded proxy configuration file" | tee -a $LOGFILE
 
 # Restarting the Nginx Service
-systemctl restart nginx.service #&>> $LOGFILE
-echo -e "\nRestared Nginx service" #| tee -a $LOGFILE
+systemctl restart nginx.service | tee -a $LOGFILE
