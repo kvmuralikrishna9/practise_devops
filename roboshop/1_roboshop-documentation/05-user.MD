@@ -118,9 +118,9 @@ mongosh --host mongodb.vrpproducts.online < /app/schema/user.js
 NOTE: If we get openssl error, execute below and then do 'Load Schema'
 
 ```
-yum remove mongodb-mongosh -y
-yum install mongodb-mongosh-shared-openssl3 -y
-yum install mongodb-mongosh -y
+dnf remove mongodb-mongosh -y
+dnf install mongodb-mongosh-shared-openssl3 -y
+dnf install mongodb-mongosh -y
 mongosh --host mongodb.vrpproducts.online < /app/schema/user.js
 ```
 
