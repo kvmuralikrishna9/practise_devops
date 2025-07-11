@@ -34,7 +34,6 @@ Every application is developed by development team will have some common softwar
 Lets download the dependencies & build the software.
 
 ```
-cd /app 
 go mod init dispatch
 go get 
 go build

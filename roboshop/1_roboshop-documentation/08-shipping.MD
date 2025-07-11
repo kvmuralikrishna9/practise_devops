@@ -38,11 +38,7 @@ unzip /tmp/shipping.zip
 
 Every application is developed by development team will have some common softwares that they use as libraries. This application also have the same way of defined dependencies in the application configuration.
 
-Lets download the dependencies & build the application
-
-```
-cd /app
-```
+Lets download the dependencies & build the application  
 ```
 mvn clean package
 ```

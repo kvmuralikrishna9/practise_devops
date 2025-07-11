@@ -95,5 +95,4 @@ else
 fi
 
 # Restart catalogue service
-systemctl restart catalogue.service &>> $LOGFILE
-echo -e "\nRestared catalogue service" | tee -a $LOGFILE
+systemctl restart catalogue.service | tee -a $LOGFILE

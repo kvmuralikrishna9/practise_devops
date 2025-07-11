@@ -41,10 +41,6 @@ Every application is developed by development team will have some common softwar
 Lets download the dependencies.
 
 ```
-cd /app 
-```
-
-```
 pip3.6 install -r requirements.txt
 ```
 
@@ -88,9 +84,9 @@ systemctl daemon-reload
 Start the service.
 
 ```
-systemctl enable payment 
+systemctl enable payment.service
 ```
 
 ```
-systemctl start payment
+systemctl start payment.service
 ```
