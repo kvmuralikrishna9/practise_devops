@@ -2,8 +2,7 @@
 
 USERID=$(id -u)
 APPDIR=/app
-SCRITP_NAME=$0
-LOGFILE=/tmp/$0.txt
+LOGFILE=/tmp/roboshop_user_script.txt
 
 # Checking the current user and suggest to be root
 if [[ $USER -ne 0 ]] ; then
@@ -12,10 +11,10 @@ if [[ $USER -ne 0 ]] ; then
 fi
 
 # Adding Nodejs repo
-curl -sL https://rpm.nodesource.com/setup_lts.x | bash &>> $LOGFILE
+curl -sL https://rpm.nodesource.com/setup_lts.x | bash | tee -a $LOGFILE
 
 # Installing NodeJS
-dnf install nodejs -y &>> $LOGFILE
+dnf install nodejs -y | tee -a $LOGFILE
 
 # Creating Application user
 id roboshop &>/dev/null
@@ -39,9 +38,9 @@ fi
 
 # Download and install the application code in app directory
 cd /app 
-curl -L -o /tmp/cart.zip https://roboshop-builds.s3.amazonaws.com/cart.zip &>> $LOGFILE
-unzip /tmp/cart.zip &>> $LOGFILE
-npm install &>> $LOGFILE
+curl -L -o /tmp/cart.zip https://roboshop-builds.s3.amazonaws.com/cart.zip | tee -a $LOGFILE
+unzip /tmp/cart.zip | tee -a $LOGFILE
+npm install | tee -a $LOGFILE
 
 # Created and Enable SystemD user Service
 cat << EOF > /etc/systemd/system/cart.service
@@ -49,8 +48,8 @@ cat << EOF > /etc/systemd/system/cart.service
 Description = Cart Service
 [Service]
 User=roboshop
-Environment=REDIS_HOST=redis.vrpproducts.online
-Environment=CATALOGUE_HOST=catalogue.vrpproducts.online
+Environment=REDIS_HOST=redis6.vrpproducts.shop
+Environment=CATALOGUE_HOST=catalogue.vrpproducts.shop
 Environment=CATALOGUE_PORT=8080
 ExecStart=/bin/node /app/server.js
 SyslogIdentifier=cart
@@ -59,5 +58,26 @@ SyslogIdentifier=cart
 WantedBy=multi-user.target
 EOF
 
-systemctl daemon-reload &>> $LOGFILE
+systemctl daemon-reload | tee -a $LOGFILE
 systemctl enable --now cart.service | tee -a $LOGFILE
+
+# Updating the Route53 record
+TOKEN=$(curl -s -X PUT "http://169.254.169.254/latest/api/token" \
+      -H "X-aws-ec2-metadata-token-ttl-seconds: 21600")
+PRIVATE_IP=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" \
+      http://169.254.169.254/latest/meta-data/local-ipv4)
+
+aws route53 change-resource-record-sets \
+  --hosted-zone-id Z00742182642KBWUPN281 \
+  --change-batch "{
+    \"Changes\": [{
+      \"Action\": \"UPSERT\",
+      \"ResourceRecordSet\": {
+        \"Name\": \"cart.vrpproducts.shop\",
+        \"Type\": \"A\",
+        \"TTL\": 0,
+        \"ResourceRecords\": [{ \"Value\": \"$PRIVATE_IP\" }]
+      }
+    }]
+  }"
+echo -e "\nUpdated Private IP Address '$PRIVATE_IP' in A-records . . .\n" | tee -a $LOGFILE

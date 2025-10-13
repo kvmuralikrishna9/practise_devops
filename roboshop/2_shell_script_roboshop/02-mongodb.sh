@@ -1,11 +1,12 @@
 #!/bin/bash
 
 USERID=$(id -u)
-LOGFILE=/tmp/output.txt
+LOGFILE="/tmp/roboshop_mongodb_script.txt"
 
 # Checking the current user and suggest to be root
 if [[ $USERID -ne 0 ]] ; then
-    echo -e "\nYou have to be root to perform this operation"
+    echo -e "\nYou have to be root to perform this operation" | tee -a $LOGFILE
+    exit 1
 fi
 
 # Creating Mongodb repository
@@ -20,12 +21,12 @@ EOF
 echo -e "\nCreated Mongodb repository" | tee -a $LOGFILE
 
 # Installing and Enable the mongodb service
-dnf install mongodb-org -y &>> LOGFILE
-systemctl enable --now mongod.service &>> LOGFILE
+dnf install mongodb-org -y | tee -a $LOGFILE
+systemctl enable --now mongod.service | tee -a $LOGFILE
 echo -e "\nInstalled and enabled mongodb and service" | tee -a $LOGFILE
 
 # Replacing the default local host 127.0.0.1 to 0.0.0.0
-sed -i '23 s/127.0.0.1/0.0.0.0/g' /etc/mongod.conf
+sed -i 's/^ *bindIp:.*$/  bindIp: 0.0.0.0/' /etc/mongod.conf
 CMD_STATUS=$?
 
 if [[ $CMD_STATUS -ne 0 ]] ; then
@@ -36,3 +37,25 @@ fi
 
 # Restaring the mongodb service
 systemctl restart mongod.service | tee -a $LOGFILE
+echo -e "\nRestarted mongod.service . . .\n" | tee -a $LOGFILE
+
+# Updating the Route53 record
+TOKEN=$(curl -s -X PUT "http://169.254.169.254/latest/api/token" \
+      -H "X-aws-ec2-metadata-token-ttl-seconds: 21600")
+PRIVATE_IP=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" \
+      http://169.254.169.254/latest/meta-data/local-ipv4)
+
+aws route53 change-resource-record-sets \
+  --hosted-zone-id Z00742182642KBWUPN281 \
+  --change-batch "{
+    \"Changes\": [{
+      \"Action\": \"UPSERT\",
+      \"ResourceRecordSet\": {
+        \"Name\": \"mongodb.vrpproducts.shop\",
+        \"Type\": \"A\",
+        \"TTL\": 0,
+        \"ResourceRecords\": [{ \"Value\": \"$PRIVATE_IP\" }]
+      }
+    }]
+  }" | tee -a $LOGFILE
+echo -e "\nUpdated Private IP Address '$PRIVATE_IP' in A-records . . .\n" | tee -a $LOGFILE

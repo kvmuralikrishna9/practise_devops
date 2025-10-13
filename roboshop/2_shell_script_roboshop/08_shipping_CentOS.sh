@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# CentOS-8 Comes with MySQL 8 Version by default, However our application needs MySQL 5.7.
+
+# AMI for CentOS: devops-practice ; ami-0b4f379183e5706b9 (user: centos //  password: DevOps321)
+
 # Installing Maven
 dnf install maven -y
 
@@ -14,8 +18,8 @@ unzip /tmp/shipping.zip
 
 # Build application from code
 mvn clean package
-mv target/shipping-1.0.jar shipping.jar
-
+mv target/shipping-1.0.jar /app/shipping.jar
+cd 
 # SystemD setup for shipping.service
 cat << EOF > /etc/systemd/system/shipping.service
 [Unit]
@@ -23,8 +27,8 @@ Description=Shipping Service
 
 [Service]
 User=roboshop
-Environment=CART_ENDPOINT=cart.vrpproducts.online:8080
-Environment=DB_HOST=mysql.vrpproducts.online
+Environment=CART_ENDPOINT=cart.vrpproducts.shop:8080
+Environment=DB_HOST=mysql.vrpproducts.shop
 ExecStart=/bin/java -jar /app/shipping.jar
 SyslogIdentifier=shipping
 
@@ -37,10 +41,15 @@ systemctl daemon-reload
 systemctl enable --now shipping
 
 # Install mysql to load schema to Database
-dnf install mysql -y 
+sudo dnf install mariadb105-server -y
+systemctl enable --now mariadb.service
 
 # Load schema
-mysql -h mysql.vrpproducts.online -uroot -pRoboShop@1 < /app/schema/shipping.sql
+mysql -h mysql.vrpproducts.shop -uroot -pRoboShop@1 < /app/schema/shipping.sql #CentOS
+mysql -h mysql.vrpproducts.shop -uroot -pRoboShop@1 < /app/db/schema.sql #AmazonLinux
+
+mysql -h mysql.vrpproducts.shop -uroot -pRoboShop@1 < /app/db/app-user.sql
+mysql -h mysql.vrpproducts.shop -uroot -pRoboShop@1 < /app/db/master-data.sql 
 
 # Restart shipping systemD service
 systemctl restart shipping.service

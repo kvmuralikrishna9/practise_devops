@@ -1,5 +1,7 @@
 #!/bin/bash
 
+PRIVATE_IP=$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4)
+
 #Install Python3.6
 dnf install python36 gcc python3-devel -y
 
@@ -21,11 +23,11 @@ Description=Payment Service
 [Service]
 User=root
 WorkingDirectory=/app
-Environment=CART_HOST=cart.vrpproducts.online
+Environment=CART_HOST=cart.vrpproducts.shop
 Environment=CART_PORT=8080
-Environment=USER_HOST=user.vrpproducts.online
+Environment=USER_HOST=user.vrpproducts.shop
 Environment=USER_PORT=8080
-Environment=AMQP_HOST=rabbitmq.vrpproducts.online
+Environment=AMQP_HOST=rabbitmq.vrpproducts.shop
 Environment=AMQP_USER=roboshop
 Environment=AMQP_PASS=roboshop123
 
@@ -39,3 +41,24 @@ EOF
 
 systemctl daemon-reload
 systemctl enable --now payment.service
+
+# Updating the Route53 record
+TOKEN=$(curl -s -X PUT "http://169.254.169.254/latest/api/token" \
+      -H "X-aws-ec2-metadata-token-ttl-seconds: 21600")
+PRIVATE_IP=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" \
+      http://169.254.169.254/latest/meta-data/local-ipv4)
+
+aws route53 change-resource-record-sets \
+  --hosted-zone-id Z05446482RDONIF108HYN \
+  --change-batch "{
+    \"Changes\": [{
+      \"Action\": \"UPSERT\",
+      \"ResourceRecordSet\": {
+        \"Name\": \"ui.vrpproducts.shop\",
+        \"Type\": \"A\",
+        \"TTL\": 0,
+        \"ResourceRecords\": [{ \"Value\": \"$PRIVATE_IP\" }]
+      }
+    }]
+  }" | tee -a $LOGFILE
+echo -e "\nUpdated Private IP Address '$PRIVATE_IP' in A-records . . .\n" | tee -a $LOGFILE

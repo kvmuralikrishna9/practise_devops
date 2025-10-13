@@ -2,9 +2,7 @@
 
 USERID=$(id -u)
 APPDIR=/app
-$SCRITP_NAME=$0
-LOGFILE=/tmp/$SCRITP_NAME.txt
-
+LOGFILE=/tmp/roboshop_user_script.txt
 
 # Checking the current user and suggest to be root
 if [[ $USER -ne 0 ]] ; then
@@ -13,14 +11,14 @@ if [[ $USER -ne 0 ]] ; then
 fi
 
 # Adding Nodejs repo
-curl -sL https://rpm.nodesource.com/setup_lts.x | bash &>> LOGFILE
+curl -sL https://rpm.nodesource.com/setup_lts.x | bash |tee -a $LOGFILE
 
 # Installing NodeJS
-dnf install nodejs -y  &>> $LOGFILE
+dnf install nodejs -y  |tee -a $LOGFILE
 echo "Installed nodeJS . . . " |tee -a $LOGFILE
 
 # Creating Application user
-id roboshop &>/dev/null
+id roboshop 
 CMD_STATUS=$?
 
 if [[ $CMD_STATUS -ne 0 ]] ; then 
@@ -31,19 +29,18 @@ else
 fi
 
 # Creating app directory
-
 if [[ ! -d $APPDIR ]] ; then
-    echo -e "\napplication directory not found so creating" &>> $LOGFILE
+    echo -e "\napplication directory not found so creating" | tee -a $LOGFILE
     mkdir /app
 else
-    echo -e "\napplication directory alreadt exists. . . continuing\n" &>> $LOGFILE
+    echo -e "\napplication directory alreadt exists. . . continuing\n" | tee -a $LOGFILE
 fi
 
 # Download and install the application code in app directory
 cd /app
-curl -L -o /tmp/user.zip https://roboshop-builds.s3.amazonaws.com/user.zip &>> $LOGFILE
-unzip /tmp/user.zip &>> $LOGFILE
-npm install &>> $LOGFILE
+curl -L -o /tmp/user.zip https://roboshop-builds.s3.amazonaws.com/user.zip | tee -a $LOGFILE
+unzip /tmp/user.zip | tee -a $LOGFILE
+npm install | tee -a $LOGFILE
 echo -e "installed dependecies" | tee -a $LOGFILE
 
 # Created and Enable SystemD user Service
@@ -53,8 +50,8 @@ Description = User Service
 [Service]
 User=roboshop
 Environment=MONGO=true
-Environment=REDIS_HOST=redis.vrpproducts.online
-Environment=MONGO_URL="mongodb://mongodb.vrpproducts.online:27017/users"
+Environment=REDIS_HOST=redis.vrpproducts.shop
+Environment=MONGO_URL="mongodb://mongodb.vrpproducts.shop:27017/users"
 ExecStart=/bin/node /app/server.js
 SyslogIdentifier=user
 
@@ -62,14 +59,13 @@ SyslogIdentifier=user
 WantedBy=multi-user.target
 EOF
 
-systemctl daemon-reload &>> $LOGFILE
-systemctl enable --now user.service &>> $LOGFILE
+systemctl daemon-reload | tee -a $LOGFILE
+systemctl enable --now user.service | tee -a $LOGFILE
 echo -e "\nAdded systemD config file for user service" | tee -a $LOGFILE
 
 ################################################################################################
 
 # Adding MongoDB repo and installing mongodb client
-
 cat << EOF > /etc/yum.repos.d/mongo.repo
 [mongodb-org-7.0]
 name=MongoDB Repository
@@ -78,24 +74,43 @@ gpgcheck=1
 enabled=1
 gpgkey=https://pgp.mongodb.com/server-7.0.asc
 EOF
-
-dnf install mongodb-mongosh -y &>> $LOGFILE
+dnf install mongodb-mongosh -y | tee -a $LOGFILE
 
 # Load Schema
-
-mongosh --host mongodb.vrpproducts.online < /app/schema/user.js &>> $LOGFILE
+mongosh --host mongodb.vrpproducts.shop < /app/schema/user.js | tee -a $LOGFILE
 CMD_STATUS=$?
 
 if [[ $CMD_STATUS -ne 0 ]] ; then
     echo -e "\nOpenSSL issue,.. workiing with trouble shooting steps" | tee -a $LOGFILE
-    dnf remove mongodb-mongosh -y &>> $LOGFILE
-    dnf install mongodb-mongosh-shared-openssl3 -y &>> $LOGFILE
-    dnf install mongodb-mongosh -y &>> $LOGFILE
-    mongosh --host mongodb.vrpproducts.online < /app/schema/user.js &>> $LOGFILE
+    dnf remove mongodb-mongosh -y | tee -a $LOGFILE
+    dnf install mongodb-mongosh-shared-openssl3 -y | tee -a $LOGFILE
+    dnf install mongodb-mongosh -y | tee -a $LOGFILE
+    mongosh --host mongodb.vrpproducts.shop < /app/schema/user.js | tee -a $LOGFILE
     echo -e "\nLoad Scheme is successfull after troubleshooting. . ." | tee -a $LOGFILE
 else
     echo -e "\nLoad Scheme is successfull. . ." | tee -a $LOGFILE
 fi
 
 # Restaring the user service
-systemctl restart user.service &>> $LOGFILE
+systemctl restart user.service | tee -a $LOGFILE
+
+# Updating the Route53 record
+TOKEN=$(curl -s -X PUT "http://169.254.169.254/latest/api/token" \
+      -H "X-aws-ec2-metadata-token-ttl-seconds: 21600")
+PRIVATE_IP=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" \
+      http://169.254.169.254/latest/meta-data/local-ipv4)
+
+aws route53 change-resource-record-sets \
+  --hosted-zone-id Z00742182642KBWUPN281 \
+  --change-batch "{
+    \"Changes\": [{
+      \"Action\": \"UPSERT\",
+      \"ResourceRecordSet\": {
+        \"Name\": \"user.vrpproducts.shop\",
+        \"Type\": \"A\",
+        \"TTL\": 0,
+        \"ResourceRecords\": [{ \"Value\": \"$PRIVATE_IP\" }]
+      }
+    }]
+  }"
+echo -e "\nUpdated Private IP Address '$PRIVATE_IP' in A-records . . .\n" | tee -a $LOGFILE

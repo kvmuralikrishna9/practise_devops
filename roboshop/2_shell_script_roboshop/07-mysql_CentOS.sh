@@ -1,6 +1,8 @@
 #!/bin/bash
 
-# CentOS-8 Comes with MySQL 8 Version by default, However our application needs MySQL 5.7. 
+# CentOS-8 Comes with MySQL 8 Version by default, However our application needs MySQL 5.7.
+
+# AMI for CentOS: devops-practice ; ami-0b4f379183e5706b9 (user: centos //  password: DevOps321)
 
 # Disabling MySQL 8 version
 yum module disable mysql -y 
@@ -23,9 +25,9 @@ mysql_secure_installation --set-root-pass RoboShop@1
 
 
 
-# sudo dnf install mariadb105-server -y
-# systemctl enable --now mariadb.service
-# sudo mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED BY 'RoboShop@1'; FLUSH PRIVILEGES;"
-# vim /etc/my.cnf.d/mariadb-server.cnf   
-# uncommnet line 37
-# mysql -uroot -pRoboShop@1
+sudo dnf install mariadb105-server -y
+systemctl enable --now mariadb.service
+sudo mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED BY 'RoboShop@1'; FLUSH PRIVILEGES;"
+vim /etc/my.cnf.d/mariadb-server.cnf   
+uncommnet line 37
+mysql -uroot -pRoboShop@1
