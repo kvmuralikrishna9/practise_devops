@@ -1,7 +1,7 @@
 #!/bin/bash
 
 USERID=$(id -u)
-LOGFILE=/tmp/roboshop_catalogue_script.txt
+LOGFILE=/tmp/roboshop_catalogue_script.log
 APPDIR=/app
 
 

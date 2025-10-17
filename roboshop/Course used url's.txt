@@ -3,6 +3,6 @@ AMI: devops-practice ; ami-0b4f379183e5706b9 (user: centos //  password: DevOps3
 
 Git Hub Repository: https://github.com/sivadevopsdaws74s
 					https://github.com/daws-76s
-
-
+					https://github.com/daws-78s/roboshop-documentation
+					https://github.com/daws-84s/roboshop-documentation/tree/main
 

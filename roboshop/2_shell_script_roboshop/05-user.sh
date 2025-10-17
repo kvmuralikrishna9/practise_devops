@@ -2,7 +2,7 @@
 
 USERID=$(id -u)
 APPDIR=/app
-LOGFILE=/tmp/roboshop_user_script.txt
+LOGFILE=/tmp/roboshop_user_script.log
 
 # Checking the current user and suggest to be root
 if [[ $USER -ne 0 ]] ; then

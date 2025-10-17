@@ -1,7 +1,5 @@
 #!/bin/bash
 
-PRIVATE_IP=$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4)
-
 #Install Python3.6
 dnf install python36 gcc python3-devel -y
 
@@ -49,12 +47,12 @@ PRIVATE_IP=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" \
       http://169.254.169.254/latest/meta-data/local-ipv4)
 
 aws route53 change-resource-record-sets \
-  --hosted-zone-id Z05446482RDONIF108HYN \
+  --hosted-zone-id Z00742182642KBWUPN281 \
   --change-batch "{
     \"Changes\": [{
       \"Action\": \"UPSERT\",
       \"ResourceRecordSet\": {
-        \"Name\": \"ui.vrpproducts.shop\",
+        \"Name\": \"payment.vrpproducts.shop\",
         \"Type\": \"A\",
         \"TTL\": 0,
         \"ResourceRecords\": [{ \"Value\": \"$PRIVATE_IP\" }]
