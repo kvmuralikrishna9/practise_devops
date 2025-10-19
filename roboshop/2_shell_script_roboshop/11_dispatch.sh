@@ -1,6 +1,12 @@
 #!/bin/bash
 
-PRIVATE_IP=$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4)
+set -e
+
+# Checking the current user and suggest to be root
+if [[ $USER -ne 0 ]] ; then
+    echo "You have to be root to perform this operation"
+    exit 1
+fi
 
 #Insyall Golanguage
 dnf install golang -y
@@ -19,12 +25,12 @@ go get
 go build
 
 # Setup systemD service for dispatch3
-cat << EOF > /vim/systemd/system/dispatch.service
+cat << EOF > /etc/systemd/system/dispatch.service
 [Unit]
 Description = Dispatch Service
 [Service]
 User=roboshop
-Environment=AMQP_HOST=RABBITMQ-IP
+Environment=AMQP_HOST=rabbitmq.vrpproducts.shop
 Environment=AMQP_USER=roboshop
 Environment=AMQP_PASS=roboshop123
 ExecStart=/app/dispatch
@@ -38,10 +44,7 @@ systemctl daemon-reload
 systemctl enable --now dispatch.service
 
 # Updating the Route53 record
-TOKEN=$(curl -s -X PUT "http://169.254.169.254/latest/api/token" \
-      -H "X-aws-ec2-metadata-token-ttl-seconds: 21600")
-PRIVATE_IP=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" \
-      http://169.254.169.254/latest/meta-data/local-ipv4)
+PRIVATE_IP=$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4)
 
 aws route53 change-resource-record-sets \
   --hosted-zone-id Z00742182642KBWUPN281 \
@@ -49,7 +52,7 @@ aws route53 change-resource-record-sets \
     \"Changes\": [{
       \"Action\": \"UPSERT\",
       \"ResourceRecordSet\": {
-        \"Name\": \"payment.vrpproducts.shop\",
+        \"Name\": \"dispatch.vrpproducts.shop\",
         \"Type\": \"A\",
         \"TTL\": 0,
         \"ResourceRecords\": [{ \"Value\": \"$PRIVATE_IP\" }]
@@ -57,3 +60,6 @@ aws route53 change-resource-record-sets \
     }]
   }" | tee -a $LOGFILE
 echo -e "\nUpdated Private IP Address '$PRIVATE_IP' in A-records . . .\n" | tee -a $LOGFILE
+
+# How to Verify Dispatch is Working (Functionally)
+# sudo journalctl -u dispatch -f

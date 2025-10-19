@@ -3,6 +3,8 @@
 USERID=$(id -u)
 LOGFILE="/tmp/roboshop_mongodb_script.log"
 
+set -e 
+
 # Checking the current user and suggest to be root
 if [[ $USERID -ne 0 ]] ; then
     echo -e "\nYou have to be root to perform this operation" | tee -a $LOGFILE
@@ -40,10 +42,7 @@ systemctl restart mongod.service | tee -a $LOGFILE
 echo -e "\nRestarted mongod.service . . .\n" | tee -a $LOGFILE
 
 # Updating the Route53 record
-TOKEN=$(curl -s -X PUT "http://169.254.169.254/latest/api/token" \
-      -H "X-aws-ec2-metadata-token-ttl-seconds: 21600")
-PRIVATE_IP=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" \
-      http://169.254.169.254/latest/meta-data/local-ipv4)
+PRIVATE_IP=$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4)
 
 aws route53 change-resource-record-sets \
   --hosted-zone-id Z00742182642KBWUPN281 \

@@ -1,7 +1,15 @@
 #!/bin/bash
 
+set -e 
+
+# Checking the current user and suggest to be root
+if [[ $USER -ne 0 ]] ; then
+    echo "You have to be root to perform this operation"
+    exit 1
+fi
+
 #Install Python3.6
-dnf install python36 gcc python3-devel -y
+dnf install python3 python3-pip gcc python3-devel -y
 
 # Creating Roboshop user and app directory
 useradd roboshop
@@ -11,10 +19,10 @@ mkdir /app
 curl -L -o /tmp/payment.zip https://roboshop-builds.s3.amazonaws.com/payment.zip
 cd /app
 unzip /tmp/payment.zip
-pip3.6 install -r requirments.txt
+pip3 install -r requirements.txt
 
 # Setup systemD service for payment service
-cat << EOF > vim /etc/systemd/system/payment.service
+cat <<'EOF' > /etc/systemd/system/payment.service
 [Unit]
 Description=Payment Service
 
@@ -41,10 +49,7 @@ systemctl daemon-reload
 systemctl enable --now payment.service
 
 # Updating the Route53 record
-TOKEN=$(curl -s -X PUT "http://169.254.169.254/latest/api/token" \
-      -H "X-aws-ec2-metadata-token-ttl-seconds: 21600")
-PRIVATE_IP=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" \
-      http://169.254.169.254/latest/meta-data/local-ipv4)
+PRIVATE_IP=$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4)
 
 aws route53 change-resource-record-sets \
   --hosted-zone-id Z00742182642KBWUPN281 \
@@ -58,5 +63,5 @@ aws route53 change-resource-record-sets \
         \"ResourceRecords\": [{ \"Value\": \"$PRIVATE_IP\" }]
       }
     }]
-  }" | tee -a $LOGFILE
+  }"
 echo -e "\nUpdated Private IP Address '$PRIVATE_IP' in A-records . . .\n" | tee -a $LOGFILE

@@ -1,14 +1,16 @@
 #!/bin/bash
 
 set -e
+
+# Checking the current user and suggest to be root
+if [[ $USER -ne 0 ]] ; then
+    echo "You have to be root to perform this operation"
+    exit 1
+fi
+
 # Configure RabbitMQ repo
 cat <<'EOF' > /etc/yum.repos.d/rabbitmq.repo
-# In /etc/yum.repos.d/rabbitmq.repo
-
-##
 ## Zero dependency Erlang RPM
-##
-
 [modern-erlang]
 name=modern-erlang-el9
 # Use a set of mirrors maintained by the RabbitMQ core team.
@@ -44,11 +46,7 @@ pkg_gpgcheck=1
 autorefresh=1
 type=rpm-md
 
-
-##
 ## RabbitMQ Server
-##
-
 [rabbitmq-el9]
 name=rabbitmq-el9
 baseurl=https://yum2.rabbitmq.com/rabbitmq/el/9/$basearch
@@ -84,11 +82,11 @@ autorefresh=1
 type=rpm-md
 EOF
 
-echo -e "\nRabbitMQ repo added successfully. . ." | tee -a $LOGFILE
-
-# Refresh DNF metadata so the repo is detected immediately
-dnf clean all && dnf makecache && dnf update -y
-dnf install -y logrotate
+dnf clean all
+dnf makecache
+dnf update -y
+dnf install -y logrotate | tee -a $LOGFILE
+echo -e "\nRabbitMQ repo added successfully. . .\n" | tee -a $LOGFILE
 
 # Install RabbitMQ and enable the service
 dnf install erlang rabbitmq-server -y | tee -a $LOGFILE
@@ -115,5 +113,5 @@ aws route53 change-resource-record-sets \
         \"ResourceRecords\": [{ \"Value\": \"$PRIVATE_IP\" }]
       }
     }]
-  }" | tee -a $LOGFILE
+  }"
 echo -e "\nUpdated Private IP Address '$PRIVATE_IP' in A-records . . .\n" | tee -a $LOGFILE
