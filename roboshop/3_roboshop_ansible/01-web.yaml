@@ -9,7 +9,7 @@
 
   tasks:
     - name: Install Nginx
-      ansible.builtin.package:
+      ansible.builtin.dnf:
         name: nginx
         state: installed
     
@@ -89,5 +89,3 @@
 
     - debug:
         var: route53_update_output.stdout
-
-

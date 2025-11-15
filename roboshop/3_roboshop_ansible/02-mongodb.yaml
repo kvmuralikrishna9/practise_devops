@@ -1,0 +1,67 @@
+---
+- name: Inatalling MongoDB
+  hosts: localhost
+  become: yes
+
+  vars:
+    hosted_zone_id: "Z0733341RBXDY8DMJGHB"
+    record_name: "mongodb.vrpproducts.shop"
+
+  tasks:
+    - name: Setup the MongoDB repo file
+      ansible.builtin.copy:
+        dest: Setup the MongoDB repo file
+        content: |
+          [mongodb-org-7.0]
+          name=MongoDB Repository
+          baseurl=https://repo.mongodb.org/yum/amazon/2023/mongodb-org/7.0/x86_64/
+          gpgcheck=1
+          enabled=1
+          gpgkey=https://pgp.mongodb.com/server-7.0.asc
+
+    - name: Install MongoDB
+      ansible.builtin.dnf:
+        name: mongodb-org
+        state: installed
+
+    - name: Start & Enable MongoDB Service
+      ansible.builtin.service:
+        name: nginx
+        state: started
+        enabled: 
+        
+    - name: able remote connections to mongodb
+      ansible.builtin.replace:
+        path: /etc/mongod.conf
+        regexp: '127.0.0.1'
+        replace: '0.0.0.0'
+
+    - name: Restart MongoDB
+      ansible.builtin.service:
+        name: mongod
+        state: restarted
+    
+    - name: Updating Route53 records
+      ansible.builtin.shell: |
+        PUBLIC_IP=$(curl -s http://checkip.amazonaws.com)
+
+        aws route53 change-resource-record-sets \
+          --hosted-zone-id {{ hosted_zone_id }} \
+          --change-batch "{
+            \"Changes\": [{
+              \"Action\": \"UPSERT\",
+              \"ResourceRecordSet\": {
+                \"Name\": \"{{ record_name }}\",
+                \"Type\": \"A\",
+                \"TTL\": 0,
+                \"ResourceRecords\": [{ \"Value\": \"${PUBLIC_IP}\" }]
+              }
+            }]
+          }"
+
+        echo "Updated Public IP Address '${PUBLIC_IP}' for {{ record_name }}"
+      register: route53_update_output
+
+    - debug:
+        var: route53_update_output.stdout
+
