@@ -37,7 +37,7 @@
 
     - name: Copy roboshoh.conf
       ansible.builtin.copy:
-        src: files/roboshop.
+        src: ./files/roboshop
         dest: /etc/nginx/default.d/roboshoh.conf
     
     - name: Restart nginx
