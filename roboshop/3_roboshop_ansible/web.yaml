@@ -1,0 +1,46 @@
+---
+- name: Installing web components
+  hosts: localhost
+  become: yes
+  tasks:
+    - name: Install Nginx
+      ansible.builtin.package:
+        name: nginx
+        state: installed
+    
+    - name: Start and enable nginx
+      ansible.builtin.service:
+        name: nginx
+        state: started
+        enabled: yes
+    
+    - name: remove default html directory
+      ansible.builtin.file:
+        path: /usr/share/nginx/html
+        state: absent
+
+    - name: remove default html directory
+      ansible.builtin.file:
+        path: /usr/share/nginx/html
+        state: directory
+
+    - name: Download web artifacts
+      ansible.builtin.get_url:
+        url: https://roboshop-builds.s3.amazonaws.com/web.zip
+        path: /tmp
+
+    - name: Extract the frontend content
+      ansible.builtin.unarchive:
+        src: /tmp/web.zip
+        dest: /usr/share/nginx/html
+        remote_src: yes
+
+    - name: Copy roboshoh.conf
+      ansible.builtin.copy:
+        src: files/roboshop.
+        dest: /etc/nginx/default.d/roboshoh.conf
+    
+    - name: Restart nginx
+      ansible.builtin.service:
+        name: nginx
+        state: restarted
