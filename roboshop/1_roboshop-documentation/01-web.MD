@@ -59,11 +59,11 @@ location /images/ {
   root   /usr/share/nginx/html;
   try_files $uri /images/placeholder.jpg;
 }
-location /api/catalogue/ { proxy_pass http://catalogue.vrpproducts.online:8080/; }
-location /api/user/ { proxy_pass http://user.vrpproducts.online:8080/; }
-location /api/cart/ { proxy_pass http://cart.vrpproducts.online:8080/; }
-location /api/shipping/ { proxy_pass http://shipping.vrpproducts.online:8080/; }
-location /api/payment/ { proxy_pass http://payment.vrpproducts.online:8080/; }
+location /api/catalogue/ { proxy_pass http://catalogue.vrpproducts.shop:8080/; }
+location /api/user/ { proxy_pass http://user.vrpproducts.shop:8080/; }
+location /api/cart/ { proxy_pass http://cart.vrpproducts.shop:8080/; }
+location /api/shipping/ { proxy_pass http://shipping.vrpproducts.shop:8080/; }
+location /api/payment/ { proxy_pass http://payment.vrpproducts.shop:8080/; }
 
 location /health {
   stub_status on;

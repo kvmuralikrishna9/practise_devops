@@ -71,7 +71,7 @@ Description = Catalogue Service
 [Service]
 User=roboshop
 Environment=MONGO=true
-Environment=MONGO_URL="mongodb://mongodb.vrpproducts.online:27017/catalogue"
+Environment=MONGO_URL="mongodb://mongodb.vrpproducts.shop:27017/catalogue"
 ExecStart=/bin/node /app/server.js
 SyslogIdentifier=catalogue
 
@@ -121,7 +121,7 @@ dnf install mongodb-mongosh -y
 Load Schema
 
 ```
-mongosh --host mongodb.vrpproducts.online < /app/schema/catalogue.js
+mongosh --host mongodb.vrpproducts.shop < /app/schema/catalogue.js
 ```
 
 If we get openssl error, execute below and then do 'Load Schema'
@@ -129,7 +129,7 @@ If we get openssl error, execute below and then do 'Load Schema'
 dnf remove mongodb-mongosh -y
 dnf install mongodb-mongosh-shared-openssl3 -y
 dnf install mongodb-mongosh -y
-mongosh --host mongodb.vrpproducts.online < /app/schema/catalogue.js
+mongosh --host mongodb.vrpproducts.shop < /app/schema/catalogue.js
 ```
 
 After Loading Schema, restart catalogue service

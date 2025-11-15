@@ -62,8 +62,8 @@ vim /etc/systemd/system/cart.service
 Description = Cart Service
 [Service]
 User=roboshop
-Environment=REDIS_HOST=redis.vrpproducts.online
-Environment=CATALOGUE_HOST=catalogue.vrpproducts.online
+Environment=REDIS_HOST=redis.vrpproducts.shop
+Environment=CATALOGUE_HOST=catalogue.vrpproducts.shop
 Environment=CATALOGUE_PORT=8080
 ExecStart=/bin/node /app/server.js
 SyslogIdentifier=cart

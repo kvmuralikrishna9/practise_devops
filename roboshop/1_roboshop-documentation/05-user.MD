@@ -63,8 +63,8 @@ Description = User Service
 [Service]
 User=roboshop
 Environment=MONGO=true
-Environment=REDIS_HOST=redis.vrpproducts.online
-Environment=MONGO_URL="mongodb://mongodb.vrpproducts.online:27017/users"
+Environment=REDIS_HOST=redis.vrpproducts.shop
+Environment=MONGO_URL="mongodb://mongodb.vrpproducts.shop:27017/users"
 ExecStart=/bin/node /app/server.js
 SyslogIdentifier=user
 
@@ -112,7 +112,7 @@ dnf install mongodb-mongosh -y
 Load Schema
 
 ```
-mongosh --host mongodb.vrpproducts.online < /app/schema/user.js
+mongosh --host mongodb.vrpproducts.shop < /app/schema/user.js
 ```
 
 NOTE: If we get openssl error, execute below and then do 'Load Schema'
@@ -121,7 +121,7 @@ NOTE: If we get openssl error, execute below and then do 'Load Schema'
 dnf remove mongodb-mongosh -y
 dnf install mongodb-mongosh-shared-openssl3 -y
 dnf install mongodb-mongosh -y
-mongosh --host mongodb.vrpproducts.online < /app/schema/user.js
+mongosh --host mongodb.vrpproducts.shop < /app/schema/user.js
 ```
 
 After Loading Schema, restart user service

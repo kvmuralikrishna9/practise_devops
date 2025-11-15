@@ -55,7 +55,7 @@ echo -e "\nRestarted nginx.service . . .\n" | tee -a $LOGFILE
 PUBLIC_IP=$(curl -s http://checkip.amazonaws.com)
 
 aws route53 change-resource-record-sets \
-  --hosted-zone-id Z00742182642KBWUPN281 \
+  --hosted-zone-id Z0733341RBXDY8DMJGHB \
   --change-batch "{
     \"Changes\": [{
       \"Action\": \"UPSERT\",
