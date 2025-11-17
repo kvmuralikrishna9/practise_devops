@@ -16,7 +16,7 @@
     - name: able remote connections to redis6
       ansible.builtin.replace:
         path: /etc/redis6/redis6.conf
-        regexp: '127.0.0.1'
+        regexp: '^bind .*'   # 127.0.0.1
         replace: '0.0.0.0'
 
     - name: Start & Enable Redis Service
@@ -25,7 +25,7 @@
         state: started
         enabled: true
 
-    - name: Updating Route53 records
+    - name: Update Route53 A record
       ansible.builtin.shell: |
         PRIVATE_IP=$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4)
         
@@ -43,7 +43,7 @@
             }]
           }"
 
-        echo "Updated Public IP Address '${PRIVATE_IP}' for {{ record_name }}"
+        echo "Updated Private IP Address '${PRIVATE_IP}' for {{ record_name }}"
       register: route53_update_output
 
     - debug:

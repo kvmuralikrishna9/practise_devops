@@ -4,8 +4,8 @@
   become: yes
 
   vars:
-      hosted_zone_id: "Z0733341RBXDY8DMJGHB"
-      record_name: "cart.vrpproducts.shop"
+    hosted_zone_id: "Z0733341RBXDY8DMJGHB"
+    record_name: "cart.vrpproducts.shop"
 
   tasks:
     - name: Setup the NPM repo

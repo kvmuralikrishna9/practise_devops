@@ -4,8 +4,8 @@
   become: yes
 
   vars:
-      hosted_zone_id: "Z0733341RBXDY8DMJGHB"
-      record_name: "user.vrpproducts.shop"
+    hosted_zone_id: "Z0733341RBXDY8DMJGHB"
+    record_name: "user.vrpproducts.shop"
 
   tasks:
     - name: Setup the NPM repo
@@ -104,28 +104,21 @@
     - name: Load Schema
       ansible.builtin.command: mongosh --host mongodb.vrpproducts.shop < /app/schema/user.js
 
-    - name: Validating Load Schema
+    - name: Retry schema load on OpenSSL issue
+      when: schema_output.rc != 0
       ansible.builtin.shell: |
-        CMD_STATUS=$?
-
-        if [[ $CMD_STATUS -ne 0 ]] ; then
-            echo -e "\nOpenSSL issue,.. workiing with trouble shooting steps"
-            dnf remove mongodb-mongosh -y
-            dnf install mongodb-mongosh-shared-openssl3 -y
-            dnf install mongodb-mongosh -y
-            mongosh --host mongodb.vrpproducts.shop < /app/schema/user.js
-            echo -e "\nLoad Scheme is successfull after troubleshooting. . .\n" 
-        else
-            echo -e "\nLoad Scheme is successfull. . ."
-        fi
+        dnf remove mongodb-mongosh -y
+        dnf install mongodb-mongosh-shared-openssl3 -y
+        dnf install mongodb-mongosh -y
+        mongosh --host mongodb.vrpproducts.shop < /app/schema/user.js
+      register: retry_output
 
     - name: restarting user Service
       ansible.builtin.service:
         name: user
         state: restarted
 
-
-    - name: Updating Route53 records
+    - name: Update Route53 record
       ansible.builtin.shell: |
         PRIVATE_IP=$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4)
 
@@ -143,10 +136,8 @@
             }]
           }"
 
-        echo "Updated Public IP Address '${PRIVATE_IP}' for {{ record_name }}"
+        echo "Updated Private IP Address '${PRIVATE_IP}' for {{ record_name }}"
       register: route53_update_output
 
     - debug:
         var: route53_update_output.stdout
-
-

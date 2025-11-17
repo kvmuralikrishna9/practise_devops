@@ -77,7 +77,7 @@
     
     - name: Daemon reload
       ansible.builtin.systemd:
-        daemon_reload: true
+        daemon_reload: yes
 
     - name: Start and Enable Catalogue service
       ansible.builtin.service:
@@ -102,29 +102,29 @@
         state: installed
     
     - name: Load Schema
-      ansible.builtin.command: mongosh --host mongodb.vrpproducts.shop < /app/schema/catalogue.js
+      ansible.builtin.shall: |
+        mongosh --host mongodb.vrpproducts.shop < /app/schema/catalogue.js
+      args:
+        chdir: /app
+      register: schema_status
+      ignore_errors: true  
 
-    - name: Validating Load Schema
+    - name: Retry Schema load if failure (OpenSSL fix)
+      when: schema_status.rc != 0
       ansible.builtin.shell: |
-        CMD_STATUS=$?
-
-        if [[ $CMD_STATUS -ne 0 ]] ; then
-            echo -e "\nOpenSSL issue,.. workiing with trouble shooting steps" | tee -a $LOGFILE
-            dnf remove mongodb-mongosh -y  | tee -a $LOGFILE
-            dnf install mongodb-mongosh-shared-openssl3 -y | tee -a $LOGFILE
-            dnf install mongodb-mongosh -y | tee -a $LOGFILE
-            mongosh --host mongodb.vrpproducts.shop < /app/schema/catalogue.js | tee -a $LOGFILE
-            echo -e "\nLoad Scheme is successfull after troubleshooting. . .\n" | tee -a $LOGFILE 
-        else
-            echo -e "\nLoad Scheme is successfull. . ." | tee -a $LOGFILE
-        fi
+        dnf remove -y mongodb-mongosh
+        dnf install -y mongodb-mongosh-shared-openssl3
+        dnf install -y mongodb-mongosh
+        mongosh --host mongodb.vrpproducts.shop < /app/schema/catalogue.js
+      register: schema_fix_status
+      ignore_errors: true
 
     - name: restarting Catalogue Service
       ansible.builtin.service:
         name: catalogue
         state: restarted
 
-    - name: Updating Route53 records
+    - name: Update Route53 records
       ansible.builtin.shell: |
         PRIVATE_IP=$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4)
 
@@ -142,7 +142,7 @@
             }]
           }"
 
-        echo "Updated Public IP Address '${PRIVATE_IP}' for {{ record_name }}"
+        echo "Updated Private IP Address '${PRIVATE_IP}' for {{ record_name }}'"
       register: route53_update_output
 
     - debug:

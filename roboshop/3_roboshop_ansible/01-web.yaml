@@ -24,7 +24,7 @@
         path: /usr/share/nginx/html
         state: absent
 
-    - name: remove default html directory
+    - name: recreate html directory
       ansible.builtin.file:
         path: /usr/share/nginx/html
         state: directory
@@ -40,7 +40,7 @@
         dest: /usr/share/nginx/html
         remote_src: yes
 
-    - name: Copy roboshoh.conf
+    - name: Copy roboshop.conf
       ansible.builtin.copy:
         dest: /etc/nginx/default.d/roboshop.conf
         content: |
@@ -78,7 +78,7 @@
               \"ResourceRecordSet\": {
                 \"Name\": \"{{ record_name }}\",
                 \"Type\": \"A\",
-                \"TTL\": 0,
+                \"TTL\": 60,
                 \"ResourceRecords\": [{ \"Value\": \"${PUBLIC_IP}\" }]
               }
             }]

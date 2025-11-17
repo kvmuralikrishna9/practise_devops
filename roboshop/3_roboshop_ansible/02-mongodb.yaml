@@ -1,5 +1,5 @@
 ---
-- name: Inatalling MongoDB
+- name: Installing MongoDB
   hosts: localhost
   become: yes
 
@@ -28,13 +28,13 @@
       ansible.builtin.service:
         name: mongod
         state: started
-        enabled: 
-        
-    - name: able remote connections to mongodb
+        enabled: yes
+
+    - name: Enable remote connections to MongoDB
       ansible.builtin.replace:
         path: /etc/mongod.conf
-        regexp: '127.0.0.1'
-        replace: '0.0.0.0'
+        regexp:  '^bind .*'   # 127.0.0.1
+        replace: '  bindIp: 0.0.0.0'
 
     - name: Restart MongoDB
       ansible.builtin.service:
@@ -59,9 +59,8 @@
             }]
           }"
 
-        echo "Updated Public IP Address '${PRIVATE_IP}' for {{ record_name }}"
+        echo "Updated Private IP Address '${PRIVATE_IP}' for {{ record_name }}"
       register: route53_update_output
 
     - debug:
         var: route53_update_output.stdout
-
