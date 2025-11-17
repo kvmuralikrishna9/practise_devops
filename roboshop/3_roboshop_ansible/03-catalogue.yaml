@@ -104,20 +104,21 @@
     - name: Load Schema
       ansible.builtin.shell: |
         mongosh --host mongodb.vrpproducts.shop < /app/schema/catalogue.js
-      args:
-        chdir: /app
-      register: schema_status
-      ignore_errors: true  
 
     - name: Retry Schema load if failure (OpenSSL fix)
-      when: schema_status.rc != 0
       ansible.builtin.shell: |
-        dnf remove -y mongodb-mongosh
-        dnf install -y mongodb-mongosh-shared-openssl3
-        dnf install -y mongodb-mongosh
-        mongosh --host mongodb.vrpproducts.shop < /app/schema/catalogue.js
-      register: schema_fix_status
-      ignore_errors: true
+        CMD_STATUS=$?
+
+        if [[ $CMD_STATUS -ne 0 ]] ; then
+            echo -e "\nOpenSSL issue,.. workiing with trouble shooting steps" | tee -a $LOGFILE
+            dnf remove mongodb-mongosh -y  | tee -a $LOGFILE
+            dnf install mongodb-mongosh-shared-openssl3 -y | tee -a $LOGFILE
+            dnf install mongodb-mongosh -y | tee -a $LOGFILE
+            mongosh --host mongodb.vrpproducts.shop < /app/schema/catalogue.js | tee -a $LOGFILE
+            echo -e "\nLoad Scheme is successfull after troubleshooting. . .\n" | tee -a $LOGFILE 
+        else
+            echo -e "\nLoad Scheme is successfull. . ." | tee -a $LOGFILE
+        fi
 
     - name: restarting Catalogue Service
       ansible.builtin.service:
