@@ -20,7 +20,7 @@
           gpgkey=https://pgp.mongodb.com/server-7.0.asc
 
     - name: Install MongoDB
-      ansible.builtin.dnf:
+      ansible.builtin.yum:
         name: mongodb-org
         state: installed
 
