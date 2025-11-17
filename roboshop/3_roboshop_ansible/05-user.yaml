@@ -1,152 +1,152 @@
 ---
-name: Install user components
-hosts: localhost
-become: yes
+- name: Install user components
+  hosts: localhost
+  become: yes
 
-vars:
-    hosted_zone_id: "Z0733341RBXDY8DMJGHB"
-    record_name: "user.vrpproducts.shop"
+  vars:
+      hosted_zone_id: "Z0733341RBXDY8DMJGHB"
+      record_name: "user.vrpproducts.shop"
 
-tasks:
-  - name: Setup the NPM repo
-    ansible.builtin.shell: "curl -sL https://rpm.nodesource.com/setup_lts.x | bash"
+  tasks:
+    - name: Setup the NPM repo
+      ansible.builtin.shell: "curl -sL https://rpm.nodesource.com/setup_lts.x | bash"
 
-  - name: Install NodeJS
-    ansible.builtin.dnf:
-      name: nodejs
-      state: installed
+    - name: Install NodeJS
+      ansible.builtin.dnf:
+        name: nodejs
+        state: installed
 
-  - name: check roboshop user exist or not
-    ansible.builtin.command: id roboshop
-    register: out       # output is variable name
-    ignore_errors: true
+    - name: check roboshop user exist or not
+      ansible.builtin.command: id roboshop
+      register: out       # output is variable name
+      ignore_errors: true
 
-  - when: out.rc != 0
-    name: create user roboshop
-    become: yes         # we need sudo access for this task
-    ansible.builtin.user:
-      name: roboshop
+    - when: out.rc != 0
+      name: create user roboshop
+      become: yes         # we need sudo access for this task
+      ansible.builtin.user:
+        name: roboshop
 
-  - name: check /app directory exists or not
-    ansible.builtin.stat:
-      path: /app
-    register: directory # directory is variable
+    - name: check /app directory exists or not
+      ansible.builtin.stat:
+        path: /app
+      register: directory # directory is variable
 
-  - name: print the directory stats
-    ansible.builtin.debug:
-      msg: "output: {{ directory }}"
-  
-  - when: directory.stat.exists == False
-    name: Create /app directory
-    ansible.builtin.file:
-      path: /app
-      state: directory
+    - name: print the directory stats
+      ansible.builtin.debug:
+        msg: "output: {{ directory }}"
+    
+    - when: directory.stat.exists == False
+      name: Create /app directory
+      ansible.builtin.file:
+        path: /app
+        state: directory
 
-  - name: Download user artifact
-    ansible.builtin.get_url:
-    url: https://roboshop-builds.s3.amazonaws.com/user.zip
-    dest: /tmp/user.zip
-  
-  - name: extract user artifac
-    ansible.builtin.unarchive:
-      src: /tmp/user.zip
-      dest: /app
-      remote_src: yes
-  
-  - name: Installing NPM and dependencies
-    ansible.builtin.command: npm install
-    args:
-      chdir: /app
+    - name: Download user artifact
+      ansible.builtin.get_url:
+      url: https://roboshop-builds.s3.amazonaws.com/user.zip
+      dest: /tmp/user.zip
+    
+    - name: extract user artifac
+      ansible.builtin.unarchive:
+        src: /tmp/user.zip
+        dest: /app
+        remote_src: yes
+    
+    - name: Installing NPM and dependencies
+      ansible.builtin.command: npm install
+      args:
+        chdir: /app
 
-  - name: Setup user service
-    ansible.builtin.copy:
-      dest: /etc/systemd/system/user.service
-      content: |
-        [Unit]
-        Description = User Service
-        [Service]
-        User=roboshop
-        Environment=MONGO=true
-        Environment=REDIS_HOST=redis.vrpproducts.shop
-        Environment=MONGO_URL="mongodb://mongodb.vrpproducts.shop:27017/users"
-        ExecStart=/bin/node /app/server.js
-        SyslogIdentifier=user
+    - name: Setup user service
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/user.service
+        content: |
+          [Unit]
+          Description = User Service
+          [Service]
+          User=roboshop
+          Environment=MONGO=true
+          Environment=REDIS_HOST=redis.vrpproducts.shop
+          Environment=MONGO_URL="mongodb://mongodb.vrpproducts.shop:27017/users"
+          ExecStart=/bin/node /app/server.js
+          SyslogIdentifier=user
 
-        [Install]
-        WantedBy=multi-user.target
+          [Install]
+          WantedBy=multi-user.target
 
-  - name: Daemon reload
-    ansible.builtin.systemd:
-      daemon_reload: true
+    - name: Daemon reload
+      ansible.builtin.systemd:
+        daemon_reload: true
 
-  - name: Start and Enable user service
-    ansible.builtin.service:
-      name: user
-      state: started
-      enabled: true
+    - name: Start and Enable user service
+      ansible.builtin.service:
+        name: user
+        state: started
+        enabled: true
 
-  - name: Setup MongoDB repo
-    ansible.builtin.copy:
-      dest: /etc/yum.repos.d/mongo.repo
-      content: |
-        [mongodb-org-7.0]
-        name=MongoDB Repository
-        baseurl=https://repo.mongodb.org/yum/amazon/2023/mongodb-org/7.0/x86_64/
-        gpgcheck=1
-        enabled=1
-        gpgkey=https://pgp.mongodb.com/server-7.0.asc
+    - name: Setup MongoDB repo
+      ansible.builtin.copy:
+        dest: /etc/yum.repos.d/mongo.repo
+        content: |
+          [mongodb-org-7.0]
+          name=MongoDB Repository
+          baseurl=https://repo.mongodb.org/yum/amazon/2023/mongodb-org/7.0/x86_64/
+          gpgcheck=1
+          enabled=1
+          gpgkey=https://pgp.mongodb.com/server-7.0.asc
 
-  - name: Installing MongoDB
-    ansible.builtin.dnf:
-      name: mongodb-mongosh
-      state: installed
+    - name: Installing MongoDB
+      ansible.builtin.dnf:
+        name: mongodb-mongosh
+        state: installed
 
-  - name: Load Schema
-    ansible.builtin.command: mongosh --host mongodb.vrpproducts.shop < /app/schema/user.js
+    - name: Load Schema
+      ansible.builtin.command: mongosh --host mongodb.vrpproducts.shop < /app/schema/user.js
 
-  - name: Validating Load Schema
-    ansible.builtin.shell: |
-      CMD_STATUS=$?
+    - name: Validating Load Schema
+      ansible.builtin.shell: |
+        CMD_STATUS=$?
 
-      if [[ $CMD_STATUS -ne 0 ]] ; then
-          echo -e "\nOpenSSL issue,.. workiing with trouble shooting steps"
-          dnf remove mongodb-mongosh -y
-          dnf install mongodb-mongosh-shared-openssl3 -y
-          dnf install mongodb-mongosh -y
-          mongosh --host mongodb.vrpproducts.shop < /app/schema/user.js
-          echo -e "\nLoad Scheme is successfull after troubleshooting. . .\n" 
-      else
-          echo -e "\nLoad Scheme is successfull. . ."
-      fi
+        if [[ $CMD_STATUS -ne 0 ]] ; then
+            echo -e "\nOpenSSL issue,.. workiing with trouble shooting steps"
+            dnf remove mongodb-mongosh -y
+            dnf install mongodb-mongosh-shared-openssl3 -y
+            dnf install mongodb-mongosh -y
+            mongosh --host mongodb.vrpproducts.shop < /app/schema/user.js
+            echo -e "\nLoad Scheme is successfull after troubleshooting. . .\n" 
+        else
+            echo -e "\nLoad Scheme is successfull. . ."
+        fi
 
-  - name: restarting user Service
-    ansible.builtin.service:
-      name: user
-      state: restarted
+    - name: restarting user Service
+      ansible.builtin.service:
+        name: user
+        state: restarted
 
 
-  - name: Updating Route53 records
-    ansible.builtin.shell: |
-      PRIVATE_IP=$(curl -s http://169.254.169.254/latest/meta-data/local-ipv)
+    - name: Updating Route53 records
+      ansible.builtin.shell: |
+        PRIVATE_IP=$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4)
 
-      aws route53 change-resource-record-sets \
-        --hosted-zone-id {{ hosted_zone_id }} \
-        --change-batch "{
-          \"Changes\": [{
-            \"Action\": \"UPSERT\",
-            \"ResourceRecordSet\": {
-              \"Name\": \"{{ record_name }}\",
-              \"Type\": \"A\",
-              \"TTL\": 0,
-              \"ResourceRecords\": [{ \"Value\": \"${PRIVATE_IP}\" }]
-            }
-          }]
-        }"
+        aws route53 change-resource-record-sets \
+          --hosted-zone-id {{ hosted_zone_id }} \
+          --change-batch "{
+            \"Changes\": [{
+              \"Action\": \"UPSERT\",
+              \"ResourceRecordSet\": {
+                \"Name\": \"{{ record_name }}\",
+                \"Type\": \"A\",
+                \"TTL\": 0,
+                \"ResourceRecords\": [{ \"Value\": \"${PRIVATE_IP}\" }]
+              }
+            }]
+          }"
 
-      echo "Updated Public IP Address '${PRIVATE_IP}' for {{ record_name }}"
-    register: route53_update_output
+        echo "Updated Public IP Address '${PRIVATE_IP}' for {{ record_name }}"
+      register: route53_update_output
 
-  - debug:
-      var: route53_update_output.stdout
+    - debug:
+        var: route53_update_output.stdout
 
 

@@ -121,7 +121,7 @@
 
     - name: Updating Route53 records
       ansible.builtin.shell: |
-        PRIVATE_IP=$(curl -s http://169.254.169.254/latest/meta-data/local-ipv)
+        PRIVATE_IP=$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4)
 
         aws route53 change-resource-record-sets \
           --hosted-zone-id {{ hosted_zone_id }} \

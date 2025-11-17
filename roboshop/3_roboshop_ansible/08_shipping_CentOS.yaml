@@ -1,159 +1,159 @@
 ---
-name: Install Shipping components
-hosts: localhost
-become: yes
+- name: Install Shipping components
+  hosts: localhost
+  become: yes
 
-vars:
-    hosted_zone_id: "Z0733341RBXDY8DMJGHB"
-    record_name: "shipping.vrpproducts.shop"
+  vars:
+      hosted_zone_id: "Z0733341RBXDY8DMJGHB"
+      record_name: "shipping.vrpproducts.shop"
 
-tasks:
-  - name: Install maven
-    ansible.builtin.dnf:
-      name: maven
-      state: installed
+  tasks:
+    - name: Install maven
+      ansible.builtin.dnf:
+        name: maven
+        state: installed
 
-  - name: check roboshop user exist or not
-    ansible.builtin.command: id roboshop
-    register: out       # output is variable name
-    ignore_errors: true
+    - name: check roboshop user exist or not
+      ansible.builtin.command: id roboshop
+      register: out       # output is variable name
+      ignore_errors: true
 
-  - when: out.rc != 0
-    name: create user roboshop
-    become: yes         # we need sudo access for this task
-    ansible.builtin.user:
-      name: roboshop
+    - when: out.rc != 0
+      name: create user roboshop
+      become: yes         # we need sudo access for this task
+      ansible.builtin.user:
+        name: roboshop
 
-  - name: check /app directory exists or not
-    ansible.builtin.stat:
-      path: /app
-    register: directory # directory is variable
+    - name: check /app directory exists or not
+      ansible.builtin.stat:
+        path: /app
+      register: directory # directory is variable
 
-  - name: print the directory stats
-    ansible.builtin.debug:
-      msg: "output: {{ directory }}"
-  
-  - when: directory.stat.exists == False
-    name: Create /app directory
-    ansible.builtin.file:
-      path: /app
-      state: directory
+    - name: print the directory stats
+      ansible.builtin.debug:
+        msg: "output: {{ directory }}"
+    
+    - when: directory.stat.exists == False
+      name: Create /app directory
+      ansible.builtin.file:
+        path: /app
+        state: directory
 
-  - name: Download shipping artifact
-    ansible.builtin.get_url:
-    url: https://roboshop-builds.s3.amazonaws.com/shipping.zip
-    dest: /tmp/shipping.zip
-  
-  - name: extract shipping artifac
-    ansible.builtin.unarchive:
-      src: /tmp/shipping.zip
-      dest: /app
-      remote_src: yes
-  
-  - name: Download dependencies and build application
-    ansible.builtin.command: mvn clean package
-    args:
-      chdir: /app
+    - name: Download shipping artifact
+      ansible.builtin.get_url:
+      url: https://roboshop-builds.s3.amazonaws.com/shipping.zip
+      dest: /tmp/shipping.zip
+    
+    - name: extract shipping artifac
+      ansible.builtin.unarchive:
+        src: /tmp/shipping.zip
+        dest: /app
+        remote_src: yes
+    
+    - name: Download dependencies and build application
+      ansible.builtin.command: mvn clean package
+      args:
+        chdir: /app
 
-  - name: Move shipping.jar
-    ansible.builtin.copy:
-      src: target/shipping-1.0.jar
-      dest: /app/shipping.jar
-      remote_src: yes
+    - name: Move shipping.jar
+      ansible.builtin.copy:
+        src: target/shipping-1.0.jar
+        dest: /app/shipping.jar
+        remote_src: yes
 
-  - name: Setup shipping service
-    ansible.builtin.copy:
-      dest: /etc/systemd/system/shipping.service
-      content: |
-        [Unit]
-        Description=Shipping Service
+    - name: Setup shipping service
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/shipping.service
+        content: |
+          [Unit]
+          Description=Shipping Service
 
-        [Service]
-        User=roboshop
-        Environment=CART_ENDPOINT=cart.vrpproducts.shop:8080
-        Environment=DB_HOST=mysql.vrpproducts.shop
-        ExecStart=/bin/java -jar /app/shipping.jar
-        SyslogIdentifier=shipping
+          [Service]
+          User=roboshop
+          Environment=CART_ENDPOINT=cart.vrpproducts.shop:8080
+          Environment=DB_HOST=mysql.vrpproducts.shop
+          ExecStart=/bin/java -jar /app/shipping.jar
+          SyslogIdentifier=shipping
 
-        [Install]
-        WantedBy=multi-user.target
+          [Install]
+          WantedBy=multi-user.target
 
-  - name: Daemon reload
-    ansible.builtin.systemd:
-      daemon_reload: true
+    - name: Daemon reload
+      ansible.builtin.systemd:
+        daemon_reload: true
 
-  - name: Start and Enable shipping service
-    ansible.builtin.service:
-      name: shipping
-      state: started
-      enabled: true
+    - name: Start and Enable shipping service
+      ansible.builtin.service:
+        name: shipping
+        state: started
+        enabled: true
 
-  - name: install MySQL Server
-    ansible.builtin.dnf:
-      name: mysql
-      state: installed
+    - name: install MySQL Server
+      ansible.builtin.dnf:
+        name: mysql
+        state: installed
 
-  - name: start and enable mysql  
-    ansible.builtin.service:
-      name: mysqld
-      state: started
-      enabled: true
+    - name: start and enable mysql  
+      ansible.builtin.service:
+        name: mysqld
+        state: started
+        enabled: true
 
-  - name: Set bind-address safely
-    ansible.builtin.shell: |
-      if [ -f /etc/my.cnf.d/mysql-server.cnf ]; then
-        if ! grep -q "bind-address = 0.0.0.0" /etc/my.cnf.d/mysql-server.cnf; then
-          echo "bind-address = 0.0.0.0" >> /etc/my.cnf.d/mysql-server.cnf
-          echo -e "Added bind-address to mysql-server.cnf\n"
+    - name: Set bind-address safely
+      ansible.builtin.shell: |
+        if [ -f /etc/my.cnf.d/mysql-server.cnf ]; then
+          if ! grep -q "bind-address = 0.0.0.0" /etc/my.cnf.d/mysql-server.cnf; then
+            echo "bind-address = 0.0.0.0" >> /etc/my.cnf.d/mysql-server.cnf
+            echo -e "Added bind-address to mysql-server.cnf\n"
+          fi
+        elif [ -f /etc/mysql/mysql.conf.d/mysqld.cnf ]; then
+          if ! grep -q "bind-address = 0.0.0.0" /etc/mysql/mysql.conf.d/mysqld.cnf; then
+            echo "bind-address = 0.0.0.0" >> /etc/mysql/mysql.conf.d/mysqld.cnf
+            echo -e "Added bind-address to mysqld.cnf\n"
+          fi
         fi
-      elif [ -f /etc/mysql/mysql.conf.d/mysqld.cnf ]; then
-        if ! grep -q "bind-address = 0.0.0.0" /etc/mysql/mysql.conf.d/mysqld.cnf; then
-          echo "bind-address = 0.0.0.0" >> /etc/mysql/mysql.conf.d/mysqld.cnf
-          echo -e "Added bind-address to mysqld.cnf\n"
-        fi
-      fi
 
-  - name: Load Schema
-    ansible.builtin.shell: |
-      echo -e "\nAdding "/app/db/schema.sql" to SQL Server"
-      mysql -h mysql.vrpproducts.shop -uroot -pRoboShop@1 < /app/db/schema.sql
-      echo "Added "\n/app/db/schema.sql" to SQL Server"
+    - name: Load Schema
+      ansible.builtin.shell: |
+        echo -e "\nAdding "/app/db/schema.sql" to SQL Server"
+        mysql -h mysql.vrpproducts.shop -uroot -pRoboShop@1 < /app/db/schema.sql
+        echo "Added "\n/app/db/schema.sql" to SQL Server"
 
-      echo -e "\nAdding "/app/db/app-user.sql" to SQL Server"
-      mysql -h mysql.vrpproducts.shop -uroot -pRoboShop@1 < /app/db/app-user.sql
-      echo "Adding "/app/db/app-user.sql" to SQL Server"
+        echo -e "\nAdding "/app/db/app-user.sql" to SQL Server"
+        mysql -h mysql.vrpproducts.shop -uroot -pRoboShop@1 < /app/db/app-user.sql
+        echo "Adding "/app/db/app-user.sql" to SQL Server"
 
-      echo -e "\nAdding "/app/db/master-data.sql" to SQL Server"
-      mysql -h mysql.vrpproducts.shop -uroot -pRoboShop@1 < /app/db/master-data.sql
-      echo "Adding "/app/db/master-data.sql" to SQL Server"
+        echo -e "\nAdding "/app/db/master-data.sql" to SQL Server"
+        mysql -h mysql.vrpproducts.shop -uroot -pRoboShop@1 < /app/db/master-data.sql
+        echo "Adding "/app/db/master-data.sql" to SQL Server"
 
-  - name: Restrted shipping service
-    ansible.builtin.service:
-      name: shipping
-      state: restarted
+    - name: Restrted shipping service
+      ansible.builtin.service:
+        name: shipping
+        state: restarted
 
-  - name: Updating Route53 records
-    ansible.builtin.shell: |
-      PRIVATE_IP=$(curl -s http://169.254.169.254/latest/meta-data/local-ipv)
+    - name: Updating Route53 records
+      ansible.builtin.shell: |
+        PRIVATE_IP=$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4)
 
-      aws route53 change-resource-record-sets \
-        --hosted-zone-id {{ hosted_zone_id }} \
-        --change-batch "{
-          \"Changes\": [{
-            \"Action\": \"UPSERT\",
-            \"ResourceRecordSet\": {
-              \"Name\": \"{{ record_name }}\",
-              \"Type\": \"A\",
-              \"TTL\": 0,
-              \"ResourceRecords\": [{ \"Value\": \"${PRIVATE_IP}\" }]
-            }
-          }]
-        }"
+        aws route53 change-resource-record-sets \
+          --hosted-zone-id {{ hosted_zone_id }} \
+          --change-batch "{
+            \"Changes\": [{
+              \"Action\": \"UPSERT\",
+              \"ResourceRecordSet\": {
+                \"Name\": \"{{ record_name }}\",
+                \"Type\": \"A\",
+                \"TTL\": 0,
+                \"ResourceRecords\": [{ \"Value\": \"${PRIVATE_IP}\" }]
+              }
+            }]
+          }"
 
-      echo "Updated Public IP Address '${PRIVATE_IP}' for {{ record_name }}"
-    register: route53_update_output
+        echo "Updated Public IP Address '${PRIVATE_IP}' for {{ record_name }}"
+      register: route53_update_output
 
-  - debug:
-      var: route53_update_output.stdout
+    - debug:
+        var: route53_update_output.stdout
 
 

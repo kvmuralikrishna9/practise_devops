@@ -1,110 +1,110 @@
 ---
-name: Install dispatch components
-hosts: localhost
-become: yes
+- name: Install dispatch components
+  hosts: localhost
+  become: yes
 
-vars:
-    hosted_zone_id: "Z0733341RBXDY8DMJGHB"
-    record_name: "dispatch.vrpproducts.shop"
+  vars:
+      hosted_zone_id: "Z0733341RBXDY8DMJGHB"
+      record_name: "dispatch.vrpproducts.shop"
 
-tasks:
-  - name: Install Golanguage
-    ansible.builtin.dnf:
-      name: golang
-      state: installed
+  tasks:
+    - name: Install Golanguage
+      ansible.builtin.dnf:
+        name: golang
+        state: installed
 
-  - name: check roboshop user exist or not
-    ansible.builtin.command: id roboshop
-    register: out       # output is variable name
-    ignore_errors: true
+    - name: check roboshop user exist or not
+      ansible.builtin.command: id roboshop
+      register: out       # output is variable name
+      ignore_errors: true
 
-  - when: out.rc != 0
-    name: create user roboshop
-    become: yes         # we need sudo access for this task
-    ansible.builtin.user:
-      name: roboshop
+    - when: out.rc != 0
+      name: create user roboshop
+      become: yes         # we need sudo access for this task
+      ansible.builtin.user:
+        name: roboshop
 
-  - name: check /app directory exists or not
-    ansible.builtin.stat:
-      path: /app
-    register: directory # directory is variable
+    - name: check /app directory exists or not
+      ansible.builtin.stat:
+        path: /app
+      register: directory # directory is variable
 
-  - name: print the directory stats
-    ansible.builtin.debug:
-      msg: "output: {{ directory }}"
-  
-  - when: directory.stat.exists == False
-    name: Create /app directory
-    ansible.builtin.file:
-      path: /app
-      state: 
-      
-  - name: Download dispatch artifact
-    ansible.builtin.get_url:
-    url: https://roboshop-builds.s3.amazonaws.com/dispatch.zip
-    dest: /tmp/dispatch.zip
-  
-  - name: extract dispatch artifac
-    ansible.builtin.unarchive:
-      src: /tmp/dispatch.zip
-      dest: /app
-      remote_src: yes
-  
-  - name: Installing NPM and dependencies
-    ansible.builtin.shell: |
-      go mod init dispatch
-      go get
-      go build
-    args:
-      chdir: /app
+    - name: print the directory stats
+      ansible.builtin.debug:
+        msg: "output: {{ directory }}"
+    
+    - when: directory.stat.exists == False
+      name: Create /app directory
+      ansible.builtin.file:
+        path: /app
+        state: 
+        
+    - name: Download dispatch artifact
+      ansible.builtin.get_url:
+      url: https://roboshop-builds.s3.amazonaws.com/dispatch.zip
+      dest: /tmp/dispatch.zip
+    
+    - name: extract dispatch artifac
+      ansible.builtin.unarchive:
+        src: /tmp/dispatch.zip
+        dest: /app
+        remote_src: yes
+    
+    - name: Installing NPM and dependencies
+      ansible.builtin.shell: |
+        go mod init dispatch
+        go get
+        go build
+      args:
+        chdir: /app
 
-  - name: Setup dispatch service
-    ansible.builtin.copy:
-      dest: /etc/systemd/system/dispatch.service
-      content: |
-        [Unit]
-        Description = Dispatch Service
-        [Service]
-        User=roboshop
-        Environment=AMQP_HOST=rabbitmq.vrpproducts.shop
-        Environment=AMQP_USER=roboshop
-        Environment=AMQP_PASS=roboshop123
-        ExecStart=/app/dispatch
-        SyslogIdentifier=dispatch
+    - name: Setup dispatch service
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/dispatch.service
+        content: |
+          [Unit]
+          Description = Dispatch Service
+          [Service]
+          User=roboshop
+          Environment=AMQP_HOST=rabbitmq.vrpproducts.shop
+          Environment=AMQP_USER=roboshop
+          Environment=AMQP_PASS=roboshop123
+          ExecStart=/app/dispatch
+          SyslogIdentifier=dispatch
 
-        [Install]
-        WantedBy=multi-user.target
+          [Install]
+          WantedBy=multi-user.target
 
-  - name: Daemon reload
-    ansible.builtin.systemd:
-      daemon_reload: true
+    - name: Daemon reload
+      ansible.builtin.systemd:
+        daemon_reload: true
 
-  - name: Start and Enable dispatch service
-    ansible.builtin.service:
-      name: dispatch
-      state: restarted
-      enabled: true
+    - name: Start and Enable dispatch service
+      ansible.builtin.service:
+        name: dispatch
+        state: restarted
+        enabled: true
 
-  - name: Updating Route53 records
-    ansible.builtin.shell: |
-      PRIVATE_IP=$(curl -s http://169.254.169.254/latest/meta-data/local-ipv)
+    - name: Updating Route53 records
+      ansible.builtin.shell: |
+        PRIVATE_IP=$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4)
 
-      aws route53 change-resource-record-sets \
-        --hosted-zone-id {{ hosted_zone_id }} \
-        --change-batch "{
-          \"Changes\": [{
-            \"Action\": \"UPSERT\",
-            \"ResourceRecordSet\": {
-              \"Name\": \"{{ record_name }}\",
-              \"Type\": \"A\",
-              \"TTL\": 0,
-              \"ResourceRecords\": [{ \"Value\": \"${PRIVATE_IP}\" }]
-            }
-          }]
-        }"
+        aws route53 change-resource-record-sets \
+          --hosted-zone-id {{ hosted_zone_id }} \
+          --change-batch "{
+            \"Changes\": [{
+              \"Action\": \"UPSERT\",
+              \"ResourceRecordSet\": {
+                \"Name\": \"{{ record_name }}\",
+                \"Type\": \"A\",
+                \"TTL\": 0,
+                \"ResourceRecords\": [{ \"Value\": \"${PRIVATE_IP}\" }]
+              }
+            }]
+          }"
 
-      echo "Updated Public IP Address '${PRIVATE_IP}' for {{ record_name }}"
-    register: route53_update_output
+        echo "Updated Public IP Address '${PRIVATE_IP}' for {{ record_name }}"
+      register: route53_update_output
 
-  - debug:
-      var: route53_update_output.stdout
+    - debug:
+        var: route53_update_output.stdout
