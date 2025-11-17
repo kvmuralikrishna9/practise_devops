@@ -134,7 +134,7 @@ tasks:
 
   - name: Updating Route53 records
     ansible.builtin.shell: |
-      PUBLIC_IP=$(curl -s http://checkip.amazonaws.com)
+      PRIVATE_IP=$(curl -s http://169.254.169.254/latest/meta-data/local-ipv)
 
       aws route53 change-resource-record-sets \
         --hosted-zone-id {{ hosted_zone_id }} \
@@ -145,12 +145,12 @@ tasks:
               \"Name\": \"{{ record_name }}\",
               \"Type\": \"A\",
               \"TTL\": 0,
-              \"ResourceRecords\": [{ \"Value\": \"${PUBLIC_IP}\" }]
+              \"ResourceRecords\": [{ \"Value\": \"${PRIVATE_IP}\" }]
             }
           }]
         }"
 
-      echo "Updated Public IP Address '${PUBLIC_IP}' for {{ record_name }}"
+      echo "Updated Public IP Address '${PRIVATE_IP}' for {{ record_name }}"
     register: route53_update_output
 
   - debug:
