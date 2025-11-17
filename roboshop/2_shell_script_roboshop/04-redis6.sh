@@ -28,7 +28,7 @@ fi
 systemctl enable --now redis6.service | tee -a $LOGFILE
 
 # Updating the Route53 record
-PRIVATE_IP=$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4)
+PRIVATE_IP=$(curl -s http://checkip.amazonaws.com)
 
 aws route53 change-resource-record-sets \
   --hosted-zone-id Z0733341RBXDY8DMJGHB \

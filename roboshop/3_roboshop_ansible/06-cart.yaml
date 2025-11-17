@@ -1,0 +1,112 @@
+---
+name: Install Cart components
+hosts: localhost
+become: yes
+
+vars:
+    hosted_zone_id: "Z0733341RBXDY8DMJGHB"
+    record_name: "cart.vrpproducts.shop"
+
+tasks:
+  - name: Setup the NPM repo
+    ansible.builtin.shell: "curl -sL https://rpm.nodesource.com/setup_lts.x | bash"
+
+  - name: Install NodeJS
+    ansible.builtin.dnf:
+      name: nodejs
+      state: installed
+
+  - name: check roboshop user exist or not
+    ansible.builtin.command: id roboshop
+    register: out       # output is variable name
+    ignore_errors: true
+
+  - when: out.rc != 0
+    name: create user roboshop
+    become: yes         # we need sudo access for this task
+    ansible.builtin.user:
+      name: roboshop
+
+  - name: check /app directory exists or not
+    ansible.builtin.stat:
+      path: /app
+    register: directory # directory is variable
+
+  - name: print the directory stats
+    ansible.builtin.debug:
+      msg: "output: {{ directory }}"
+  
+  - when: directory.stat.exists == False
+    name: Create /app directory
+    ansible.builtin.file:
+      path: /app
+      state: directory
+
+  - name: Download cart artifact
+    ansible.builtin.get_url:
+    url: https://roboshop-builds.s3.amazonaws.com/cart.zip
+    dest: /tmp/cart.zip
+  
+  - name: extract cart artifac
+    ansible.builtin.unarchive:
+      src: /tmp/cart.zip
+      dest: /app
+      remote_src: yes
+  
+  - name: Installing NPM and dependencies
+    ansible.builtin.command: npm install
+    args:
+      chdir: /app
+
+  - name: Setup cart service
+    ansible.builtin.copy:
+      dest: /etc/systemd/system/cart.service
+      content: |
+        [Unit]
+        Description = Cart Service
+        [Service]
+        User=roboshop
+        Environment=REDIS_HOST=redis.vrpproducts.shop
+        Environment=CATALOGUE_HOST=catalogue.vrpproducts.shop
+        Environment=CATALOGUE_PORT=8080
+        ExecStart=/bin/node /app/server.js
+        SyslogIdentifier=cart
+
+        [Install]
+        WantedBy=multi-user.target
+
+  - name: Daemon reload
+    ansible.builtin.systemd:
+      daemon_reload: true
+
+  - name: Start and Enable cart service
+    ansible.builtin.service:
+      name: cart
+      state: started
+      enabled: true
+
+  - name: Updating Route53 records
+    ansible.builtin.shell: |
+      PUBLIC_IP=$(curl -s http://checkip.amazonaws.com)
+
+      aws route53 change-resource-record-sets \
+        --hosted-zone-id {{ hosted_zone_id }} \
+        --change-batch "{
+          \"Changes\": [{
+            \"Action\": \"UPSERT\",
+            \"ResourceRecordSet\": {
+              \"Name\": \"{{ record_name }}\",
+              \"Type\": \"A\",
+              \"TTL\": 0,
+              \"ResourceRecords\": [{ \"Value\": \"${PUBLIC_IP}\" }]
+            }
+          }]
+        }"
+
+      echo "Updated Public IP Address '${PUBLIC_IP}' for {{ record_name }}"
+    register: route53_update_output
+
+  - debug:
+      var: route53_update_output.stdout
+
+

@@ -8,7 +8,7 @@ if [[ $USER -ne 0 ]] ; then
     exit 1
 fi
 
-#Insyall Golanguage
+#Install Golanguage
 dnf install golang -y
 
 # Creating application user and app directory
@@ -44,7 +44,7 @@ systemctl daemon-reload
 systemctl enable --now dispatch.service
 
 # Updating the Route53 record
-PRIVATE_IP=$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4)
+PRIVATE_IP=$(curl -s http://checkip.amazonaws.com)
 
 aws route53 change-resource-record-sets \
   --hosted-zone-id Z0733341RBXDY8DMJGHB \

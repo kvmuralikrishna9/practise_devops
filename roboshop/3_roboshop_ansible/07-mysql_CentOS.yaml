@@ -1,0 +1,103 @@
+---
+- name: install MySQL component
+  hosts: localhost
+  become: yes
+
+  vars:
+    hosted_zone_id: "Z0733341RBXDY8DMJGHB"
+    record_name: "mysql.vrpproducts.shop"
+
+  tasks:
+    - name: Disable mysql modile
+      ansible.builtin.command: yum module disable mysql -y
+
+    - name: setup the MySQL5.7 repo
+      ansible.builtin.copy:
+      dest: /etc/yum.repos.d/mysql.repo
+      content: |
+        [mysql]
+        name=MySQL 5.7 Community Server
+        baseurl=http://repo.mysql.com/yum/mysql-5.7-community/el/7/$basearch/
+        enabled=1
+        gpgcheck=0
+
+    - name: install MySQL Server
+      ansible.builtin.dnf:
+        name: mysql-community-server
+        state: installed
+
+    - name: start and enable mysql  
+      ansible.builtin.service:
+        name: mysqld
+        state: started
+        enabled: true
+
+    - name: Set bind-address safely    
+      ansible.builtin.shell: |
+        if [ -f /etc/my.cnf.d/mysql-server.cnf ]; then
+          if ! grep -q "bind-address = 0.0.0.0" /etc/my.cnf.d/mysql-server.cnf; then
+            echo "bind-address = 0.0.0.0" >> /etc/my.cnf.d/mysql-server.cnf
+            echo "Added bind-address to mysql-server.cnf" 
+          fi
+        elif [ -f /etc/mysql/mysql.conf.d/mysqld.cnf ]; then
+          if ! grep -q "bind-address = 0.0.0.0" /etc/mysql/mysql.conf.d/mysqld.cnf; then
+            echo "bind-address = 0.0.0.0" >> /etc/mysql/mysql.conf.d/mysqld.cnf
+            echo "Added bind-address to mysqld.cnf" 
+          fi
+        fi
+
+    - name: restart mysql  
+      ansible.builtin.service:
+        name: mysqld
+        state: restarted
+
+    - name: Set bind-address safely    
+      ansible.builtin.command:
+        until mysql -uroot -e ";" 2>/dev/null; do
+          echo "Waiting for MySQL to start..."
+          sleep 5
+        done
+
+        echo -e "\nLogin as root without password and set native password"
+        sudo mysql <<EOF
+        ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'RoboShop@1';
+        FLUSH PRIVILEGES;
+        EOF
+
+        cat <<EOF > /tmp/mysql_grants.sql
+        CREATE USER IF NOT EXISTS 'root'@'%' IDENTIFIED BY 'RoboShop@1';
+        GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION;
+        FLUSH PRIVILEGES;
+        EOF
+
+        export MYSQL_PWD='RoboShop@1'
+        mysql -uroot < /tmp/mysql_grants.sql
+        unset MYSQL_PWD
+        rm -f /tmp/mysql_grants.sql
+        echo "Remote root user created with full privileges" 
+
+    - name: Updating Route53 records
+      ansible.builtin.shell: |
+        PUBLIC_IP=$(curl -s http://checkip.amazonaws.com)
+
+        aws route53 change-resource-record-sets \
+          --hosted-zone-id {{ hosted_zone_id }} \
+          --change-batch "{
+            \"Changes\": [{
+              \"Action\": \"UPSERT\",
+              \"ResourceRecordSet\": {
+                \"Name\": \"{{ record_name }}\",
+                \"Type\": \"A\",
+                \"TTL\": 0,
+                \"ResourceRecords\": [{ \"Value\": \"${PUBLIC_IP}\" }]
+              }
+            }]
+          }"
+
+        echo "Updated Public IP Address '${PUBLIC_IP}' for {{ record_name }}"
+      register: route53_update_output
+
+    - debug:
+        var: route53_update_output.stdout
+
+

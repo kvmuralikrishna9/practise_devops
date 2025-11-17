@@ -45,6 +45,14 @@ WantedBy=multi-user.target
 EOF
 echo -e "\nCreated shipping systemD service file\n" | tee -a $LOGFILE
 
+# Enable the shipping systemD service
+systemctl daemon-reload
+systemctl enable --now shipping.service
+echo -e "Enabled shipping service\n" | tee -a $LOGFILE
+
+# Install mysql to load schema to Database
+dnf install mysql -y | tee -a $LOGFILE
+
 # Set bind-address safely
 if [ -f /etc/my.cnf.d/mysql-server.cnf ]; then
   if ! grep -q "bind-address = 0.0.0.0" /etc/my.cnf.d/mysql-server.cnf; then
@@ -57,14 +65,6 @@ elif [ -f /etc/mysql/mysql.conf.d/mysqld.cnf ]; then
     echo -e "Added bind-address to mysqld.cnf\n" | tee -a $LOGFILE
   fi
 fi
-
-# Enable the shipping systemD service
-systemctl daemon-reload
-systemctl enable --now shipping.service
-echo -e "Enabled shipping service\n" | tee -a $LOGFILE
-
-# Install mysql to load schema to Database
-dnf install mysql -y | tee -a $LOGFILE
 
 # Load schema
 echo -e "\nAdding "/app/db/schema.sql" to SQL Server" | tee -a $LOGFILE
@@ -84,7 +84,7 @@ systemctl restart shipping.service
 echo -e "\nRestarted shipping service" | tee -a $LOGFILE
 
 # Updating the Route53 record
-PRIVATE_IP=$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4)
+PRIVATE_IP=$(curl -s http://checkip.amazonaws.com)
 
 aws route53 change-resource-record-sets \
   --hosted-zone-id Z0733341RBXDY8DMJGHB \

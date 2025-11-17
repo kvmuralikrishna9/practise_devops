@@ -147,13 +147,3 @@
 
     - debug:
         var: route53_update_output.stdout
-    
-
-    
-
-    
-
-    
-
-
-

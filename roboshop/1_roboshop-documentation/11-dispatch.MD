@@ -74,3 +74,8 @@ Start the service.
 systemctl enable dispatch 
 systemctl start dispatch
 ```
+
+How to Verify Dispatch is Working (Functionally)
+```
+sudo journalctl -u dispatch -f
+```
