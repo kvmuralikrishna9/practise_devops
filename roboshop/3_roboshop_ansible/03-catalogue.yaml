@@ -102,7 +102,7 @@
         state: installed
     
     - name: Load Schema
-      ansible.builtin.shall: |
+      ansible.builtin.shell: |
         mongosh --host mongodb.vrpproducts.shop < /app/schema/catalogue.js
       args:
         chdir: /app
