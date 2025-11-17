@@ -110,14 +110,14 @@
         CMD_STATUS=$?
 
         if [[ $CMD_STATUS -ne 0 ]] ; then
-            echo -e "\nOpenSSL issue,.. workiing with trouble shooting steps" | tee -a $LOGFILE
-            dnf remove mongodb-mongosh -y  | tee -a $LOGFILE
-            dnf install mongodb-mongosh-shared-openssl3 -y | tee -a $LOGFILE
-            dnf install mongodb-mongosh -y | tee -a $LOGFILE
-            mongosh --host mongodb.vrpproducts.shop < /app/schema/catalogue.js | tee -a $LOGFILE
-            echo -e "\nLoad Scheme is successfull after troubleshooting. . .\n" | tee -a $LOGFILE 
+            echo -e "\nOpenSSL issue,.. workiing with trouble shooting steps"
+            dnf remove mongodb-mongosh -y
+            dnf install mongodb-mongosh-shared-openssl3 -y
+            dnf install mongodb-mongosh -y
+            mongosh --host mongodb.vrpproducts.shop < /app/schema/catalogue.js
+            echo -e "\nLoad Scheme is successfull after troubleshooting. . .\n"
         else
-            echo -e "\nLoad Scheme is successfull. . ." | tee -a $LOGFILE
+            echo -e "\nLoad Scheme is successfull. . ."
         fi
 
     - name: restarting Catalogue Service
