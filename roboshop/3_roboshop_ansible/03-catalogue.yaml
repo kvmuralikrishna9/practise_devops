@@ -75,9 +75,9 @@
           [Install]
           WantedBy=multi-user.target
     
-    - name: Deamon reload
+    - name: Daemon reload
       ansible.builtin.systemd:
-        deamon_reload: true
+        daemon_reload: true
 
     - name: Start and Enable Catalogue service
       ansible.builtin.service:
