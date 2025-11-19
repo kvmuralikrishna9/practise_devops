@@ -104,7 +104,7 @@
     - name: Load Schema
       ansible.builtin.shell: | 
         mongosh --host mongodb.vrpproducts.shop < /app/schema/user.js
-      egister: load_schema_result
+      register: load_schema_result
       ignore_errors: yes
 
     - name: Retry schema load on OpenSSL issue
