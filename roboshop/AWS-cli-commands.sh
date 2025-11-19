@@ -23,20 +23,24 @@ aws ec2 run-instances \
 
 
 ## Execute SSM on EC2
+
+ec2_id="i-0e1ad9f9ad8737a80"
+yaml_file="04-redis6.yaml"
+
 aws ssm send-command \
   --document-name "AWS-ApplyAnsiblePlaybooks" \
   --document-version "1" \
-  --targets "Key=InstanceIds,Values=i-0fcbc8180b15fe345" \
-  --parameters '{
-      "SourceType":["GitHub"],
-      "SourceInfo":["{\"owner\":\"kvmuralikrishna9\",\"repository\":\"practise_devops\",\"path\":\"roboshop/3_roboshop_ansible\",\"getOptions\":\"branch:feature-murali\"}"],
-      "InstallDependencies":["True"],
-      "PlaybookFile":["03-catalogue.yaml"],
-      "ExtraVariables":["SSM=True"],
-      "Check":["False"],
-      "Verbose":["-v"],
-      "TimeoutSeconds":["3600"]
-  }' \
+  --targets "Key=InstanceIds,Values=${ec2_id}" \
+  --parameters "{
+      \"SourceType\": [\"GitHub\"],
+      \"SourceInfo\": [\"{\\\"owner\\\":\\\"kvmuralikrishna9\\\",\\\"repository\\\":\\\"practise_devops\\\",\\\"path\\\":\\\"roboshop/3_roboshop_ansible\\\",\\\"getOptions\\\":\\\"branch:feature-murali\\\"}\"],
+      \"InstallDependencies\": [\"True\"],
+      \"PlaybookFile\": [\"${yaml_file}\"],
+      \"ExtraVariables\": [\"SSM=True\"],
+      \"Check\": [\"False\"],
+      \"Verbose\": [\"-v\"],
+      \"TimeoutSeconds\": [\"3600\"]
+  }" \
   --timeout-seconds 600 \
   --max-concurrency "50" \
   --max-errors "0" \
