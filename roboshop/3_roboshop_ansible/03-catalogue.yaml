@@ -47,7 +47,7 @@
         url: https://roboshop-builds.s3.amazonaws.com/catalogue.zip
         dest: /tmp/catalogue.zip
     
-    - name: extract catalogue artifac
+    - name: extract catalogue artifact
       ansible.builtin.unarchive:
         src: /tmp/catalogue.zip
         dest: /app
@@ -99,7 +99,7 @@
     - name: Installing MongoDB
       ansible.builtin.dnf:
         name: 
-          - mongodb-mongosh-shared-openssl3
+          - mongodb-mongosh
         state: installed
     
     - name: Load Schema

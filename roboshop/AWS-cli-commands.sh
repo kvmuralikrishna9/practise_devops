@@ -11,27 +11,27 @@ aws ec2 run-instances \
   --launch-template LaunchTemplateId=lt-0aa5b1d868d1cbb86,Version=$Default \
   --count 1
   
-# App Tier (Centos)
-aws ec2 run-instances \
-  --launch-template LaunchTemplateId=lt-072ea4fc022c05b02,Version='$Default' \
-  --count 
- 
 # DB Tier 
 aws ec2 run-instances \
   --launch-template LaunchTemplateId=lt-0f103401ed25df3bb,Version='$Default' \
   --count 1
+
+# App Tier (Centos)
+aws ec2 run-instances \
+  --launch-template LaunchTemplateId=lt-072ea4fc022c05b02,Version='$Default' \
+  --count 
 
 
 ## Execute SSM on EC2
 aws ssm send-command \
   --document-name "AWS-ApplyAnsiblePlaybooks" \
   --document-version "1" \
-  --targets "Key=InstanceIds,Values=i-069cab22ceff3b188" \
+  --targets "Key=InstanceIds,Values=i-06b58eefee94aac98" \
   --parameters '{
       "SourceType":["GitHub"],
       "SourceInfo":["{\"owner\":\"kvmuralikrishna9\",\"repository\":\"practise_devops\",\"path\":\"roboshop/3_roboshop_ansible\",\"getOptions\":\"branch:feature-murali\"}"],
       "InstallDependencies":["True"],
-      "PlaybookFile":["03-catalogue.yaml"],
+      "PlaybookFile":["02-mongodb.yaml"],
       "ExtraVariables":["SSM=True"],
       "Check":["False"],
       "Verbose":["-v"],
