@@ -24,8 +24,8 @@ aws ec2 run-instances \
 
 ## Execute SSM on EC2
 
-ec2_id="i-0e1ad9f9ad8737a80"
-yaml_file="04-redis6.yaml"
+ec2_id="i-043b88a75560a001b"
+yaml_file="05-user.yaml"
 
 aws ssm send-command \
   --document-name "AWS-ApplyAnsiblePlaybooks" \
