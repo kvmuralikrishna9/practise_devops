@@ -26,7 +26,7 @@ aws ec2 run-instances \
 aws ssm send-command \
   --document-name "AWS-ApplyAnsiblePlaybooks" \
   --document-version "1" \
-  --targets "Key=InstanceIds,Values=i-0196b07ec9340148b" \
+  --targets "Key=InstanceIds,Values=i-069cab22ceff3b188" \
   --parameters '{
       "SourceType":["GitHub"],
       "SourceInfo":["{\"owner\":\"kvmuralikrishna9\",\"repository\":\"practise_devops\",\"path\":\"roboshop/3_roboshop_ansible\",\"getOptions\":\"branch:feature-murali\"}"],

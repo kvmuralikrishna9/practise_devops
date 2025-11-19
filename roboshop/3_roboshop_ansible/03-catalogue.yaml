@@ -100,7 +100,6 @@
       ansible.builtin.dnf:
         name: 
           - mongodb-mongosh-shared-openssl3
-          - mongodb-mongosh
         state: installed
     
     - name: Load Schema
@@ -113,7 +112,7 @@
       when: load_schema_result.failed
       ansible.builtin.shell: |
         echo "Retrying schema load after OpenSSL fix..."
-        dnf install -y mongodb-mongosh-shared-openssl3 mongodb-mongosh
+        dnf reinstall -y mongodb-mongosh-shared-openssl3 mongodb-mongosh
         mongosh --host mongodb.vrpproducts.shop < /app/schema/catalogue.js
         echo "Schema loaded successfully after retry."
 
