@@ -44,8 +44,8 @@
 
     - name: Download user artifact
       ansible.builtin.get_url:
-      url: https://roboshop-builds.s3.amazonaws.com/user.zip
-      dest: /tmp/user.zip
+        url: https://roboshop-builds.s3.amazonaws.com/user.zip
+        dest: /tmp/user.zip
     
     - name: extract user artifac
       ansible.builtin.unarchive:
