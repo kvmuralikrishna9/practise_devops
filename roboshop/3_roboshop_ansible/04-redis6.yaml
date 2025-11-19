@@ -16,8 +16,8 @@
     - name: able remote connections to redis6
       ansible.builtin.replace:
         path: /etc/redis6/redis6.conf
-        regexp: '^bind .*'   # 127.0.0.1
-        replace: '0.0.0.0'
+        regexp: '^(\s*)bindIp:\s*.*'   # 127.0.0.1
+        replace: '\1bindIp: 0.0.0.0'
 
     - name: Start & Enable Redis Service
       ansible.builtin.service:

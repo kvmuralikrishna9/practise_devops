@@ -26,12 +26,12 @@ aws ec2 run-instances \
 aws ssm send-command \
   --document-name "AWS-ApplyAnsiblePlaybooks" \
   --document-version "1" \
-  --targets "Key=InstanceIds,Values=i-06b58eefee94aac98" \
+  --targets "Key=InstanceIds,Values=i-0fcbc8180b15fe345" \
   --parameters '{
       "SourceType":["GitHub"],
       "SourceInfo":["{\"owner\":\"kvmuralikrishna9\",\"repository\":\"practise_devops\",\"path\":\"roboshop/3_roboshop_ansible\",\"getOptions\":\"branch:feature-murali\"}"],
       "InstallDependencies":["True"],
-      "PlaybookFile":["02-mongodb.yaml"],
+      "PlaybookFile":["03-catalogue.yaml"],
       "ExtraVariables":["SSM=True"],
       "Check":["False"],
       "Verbose":["-v"],
