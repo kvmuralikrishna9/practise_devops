@@ -9,17 +9,17 @@
 
   tasks:
     - name: Disable mysql modile
-      ansible.builtin.command: yum module disable mysql -y
+      ansible.builtin.shell: yum module disable mysql -y
 
     - name: setup the MySQL5.7 repo
       ansible.builtin.copy:
-      dest: /etc/yum.repos.d/mysql.repo
-      content: |
-        [mysql]
-        name=MySQL 5.7 Community Server
-        baseurl=http://repo.mysql.com/yum/mysql-5.7-community/el/7/$basearch/
-        enabled=1
-        gpgcheck=0
+        dest: /etc/yum.repos.d/mysql.repo
+        content: |
+          [mysql]
+          name=MySQL 5.7 Community Server
+          baseurl=http://repo.mysql.com/yum/mysql-5.7-community/el/7/$basearch/
+          enabled=1
+          gpgcheck=0
 
     - name: install MySQL Server
       ansible.builtin.dnf:
@@ -51,8 +51,8 @@
         name: mysqld
         state: restarted
 
-    - name: Set bind-address safely    
-      ansible.builtin.command:
+    - name: Set root password and remote access   
+      ansible.builtin.shell:
         until mysql -uroot -e ";" 2>/dev/null; do
           echo "Waiting for MySQL to start..."
           sleep 5
@@ -78,7 +78,11 @@
 
     - name: Updating Route53 records
       ansible.builtin.shell: |
-        PRIVATE_IP=$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4)
+        TOKEN=$(curl -s -X PUT "http://169.254.169.254/latest/api/token" \
+          -H "X-aws-ec2-metadata-token-ttl-seconds: 21600")
+
+        PRIVATE_IP=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" \
+          http://169.254.169.254/latest/meta-data/local-ipv4)
 
         aws route53 change-resource-record-sets \
           --hosted-zone-id {{ hosted_zone_id }} \

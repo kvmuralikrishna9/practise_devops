@@ -17,7 +17,7 @@
         state: installed
 
     - name: check roboshop user exist or not
-      ansible.builtin.command: id roboshop
+      ansible.builtin.shell: id roboshop
       register: out       # output is variable name
       ignore_errors: true
 
@@ -54,7 +54,7 @@
         remote_src: yes
     
     - name: Installing NPM and dependencies
-      ansible.builtin.command: npm install
+      ansible.builtin.shell: npm install
       args:
         chdir: /app
 
@@ -66,7 +66,7 @@
           Description = Cart Service
           [Service]
           User=roboshop
-          Environment=REDIS_HOST=redis.vrpproducts.shop
+          Environment=REDIS_HOST=redis6.vrpproducts.shop
           Environment=CATALOGUE_HOST=catalogue.vrpproducts.shop
           Environment=CATALOGUE_PORT=8080
           ExecStart=/bin/node /app/server.js

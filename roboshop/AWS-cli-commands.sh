@@ -8,10 +8,10 @@ aws ec2 run-instances \
 
 # App Tier (AL2023)
 aws ec2 run-instances \
-  --launch-template LaunchTemplateId=lt-0aa5b1d868d1cbb86,Version=$Default \
+  --launch-template LaunchTemplateId=lt-0aa5b1d868d1cbb86,Version='$Default' \
   --count 1
   
-# DB Tier 
+# DB Tier (AL2023)
 aws ec2 run-instances \
   --launch-template LaunchTemplateId=lt-0f103401ed25df3bb,Version='$Default' \
   --count 1
@@ -21,11 +21,17 @@ aws ec2 run-instances \
   --launch-template LaunchTemplateId=lt-072ea4fc022c05b02,Version='$Default' \
   --count 
 
+  # DB Tier (Centos)
+aws ec2 run-instances \
+  --launch-template LaunchTemplateId=lt-0f103401ed25df3bb,Version='$Default' \
+  --count 1
+
+
 
 ## Execute SSM on EC2
 
-ec2_id="i-043b88a75560a001b"
-yaml_file="05-user.yaml"
+ec2_id="i-0b49b1b098dedf1b2"
+yaml_file="06-cart.yaml"
 
 aws ssm send-command \
   --document-name "AWS-ApplyAnsiblePlaybooks" \
