@@ -51,13 +51,15 @@
         name: mysqld
         state: restarted
 
-    - name: Set root password and remote access   
-      ansible.builtin.shell:
+    - name: Login to sql  
+      ansible.builtin.shell: |
         until mysql -uroot -e ";" 2>/dev/null; do
           echo "Waiting for MySQL to start..."
           sleep 5
         done
-
+    
+    - name: Set root password and remote access   
+      ansible.builtin.shell: |
         echo -e "\nLogin as root without password and set native password"
         sudo mysql <<EOF
         ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'RoboShop@1';

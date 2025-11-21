@@ -16,7 +16,12 @@
           - gcc
           - python3-devel
         state: installed
-        update_cache: yes
+        update_cache: 
+  
+    - name: Install NodeJS (required only if npm install is needed)
+      ansible.builtin.dnf:
+        name: nodejs
+        state: present
 
     - name: check roboshop user exist or not
       ansible.builtin.shell: id roboshop
@@ -112,7 +117,7 @@
               \"ResourceRecordSet\": {
                 \"Name\": \"{{ record_name }}\",
                 \"Type\": \"A\",
-                \"TTL\": 0,
+                \"TTL\": 60,
                 \"ResourceRecords\": [{ \"Value\": \"${PRIVATE_IP}\" }]
               }
             }]

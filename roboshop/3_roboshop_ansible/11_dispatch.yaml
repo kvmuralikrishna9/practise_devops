@@ -101,7 +101,7 @@
               \"ResourceRecordSet\": {
                 \"Name\": \"{{ record_name }}\",
                 \"Type\": \"A\",
-                \"TTL\": 0,
+                \"TTL\": 60,
                 \"ResourceRecords\": [{ \"Value\": \"${PRIVATE_IP}\" }]
               }
             }]
@@ -112,3 +112,6 @@
 
     - debug:
         var: route53_update_output.stdout
+
+# How to Verify Dispatch is Working (Functionally)
+# sudo journalctl -u dispatch -f

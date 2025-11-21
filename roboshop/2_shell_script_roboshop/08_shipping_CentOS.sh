@@ -51,6 +51,9 @@ systemctl enable --now shipping.service
 echo -e "Enabled shipping service\n" | tee -a $LOGFILE
 
 # Install mysql to load schema to Database
+# CentOS-8 Comes with MySQL 8 Version by default, However our application needs MySQL 5.7.
+# In the script it installs latest, currently its working, However in future
+# If not compatable then use documention & add my sql repo and install 5.7. 
 dnf install mysql -y | tee -a $LOGFILE
 
 # Set bind-address safely
@@ -84,7 +87,11 @@ systemctl restart shipping.service
 echo -e "\nRestarted shipping service" | tee -a $LOGFILE
 
 # Updating the Route53 record
-PRIVATE_IP=$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4)
+TOKEN=$(curl -s -X PUT "http://169.254.169.254/latest/api/token" \
+  -H "X-aws-ec2-metadata-token-ttl-seconds: 21600")
+  
+PRIVATE_IP=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" \
+  http://169.254.169.254/latest/meta-data/local-ipv4)
 
 aws route53 change-resource-record-sets \
   --hosted-zone-id Z0733341RBXDY8DMJGHB \
