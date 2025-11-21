@@ -95,15 +95,8 @@
         state: restarted
         enabled: true
         
-    - name: Check AWS CLI availability
-      ansible.builtin.shell: |
-        if [ -x /usr/local/bin/aws ]; then
-          /usr/local/bin/aws --version
-        elif [ -x /usr/bin/aws ]; then
-          /usr/bin/aws --version
-        else
-          exit 1
-        fi
+    - name: Check if AWS CLI is installed
+      ansible.builtin.shell: aws --version
       register: aws_cli_version
       ignore_errors: true
 
@@ -114,6 +107,12 @@
         curl -s "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
         unzip -o awscliv2.zip
         ./aws/install --update
+
+    - name: Remove existing /usr/bin/aws if present
+      ansible.builtin.file:
+        path: /usr/bin/aws
+        state: absent
+      when: aws_cli_version.rc != 0
 
     - name: Ensure aws executable available under /usr/bin/aws
       ansible.builtin.file:
