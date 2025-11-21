@@ -9,7 +9,7 @@ aws ec2 run-instances \
 # AL2023 - App Tier
 aws ec2 run-instances \
   --launch-template LaunchTemplateId=lt-0aa5b1d868d1cbb86,Version='$Default' \
-  --count 3
+  --count 1
 
 #  AL2023 -  DB Tiee
 aws ec2 run-instances \
@@ -30,7 +30,7 @@ aws ec2 run-instances \
 
 ## Execute SSM on EC2
 
-ec2_id="i-082eb94b21bb16476"
+ec2_id="i-0756292cd0d90d937"
 yaml_file="10_payment.yaml"
 
 aws ssm send-command \
@@ -44,7 +44,7 @@ aws ssm send-command \
       \"PlaybookFile\": [\"${yaml_file}\"],
       \"ExtraVariables\": [\"SSM=True\"],
       \"Check\": [\"False\"],
-      \"Verbose\": [\"-v\"],
+      \"Verbose\": [\"-vvv\"],
       \"TimeoutSeconds\": [\"3600\"]
   }" \
   --timeout-seconds 600 \

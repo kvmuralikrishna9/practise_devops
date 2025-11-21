@@ -113,7 +113,7 @@ aws route53 change-resource-record-sets \
       \"ResourceRecordSet\": {
         \"Name\": \"rabbitmq.vrpproducts.shop\",
         \"Type\": \"A\",
-        \"TTL\": 0,
+        \"TTL\": 60,
         \"ResourceRecords\": [{ \"Value\": \"$PRIVATE_IP\" }]
       }
     }]

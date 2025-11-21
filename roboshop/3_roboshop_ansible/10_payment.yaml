@@ -17,14 +17,6 @@
           - python3-devel
         state: installed
         update_cache: yes
-  
-    - name: Setup the NPM repo
-      ansible.builtin.shell: "curl -sL https://rpm.nodesource.com/setup_lts.x | bash"
-
-    - name: Install NodeJS
-      ansible.builtin.dnf:
-        name: nodejs
-        state: installed
 
     - name: check roboshop user exist or not
       ansible.builtin.shell: id roboshop
@@ -64,10 +56,9 @@
         dest: /app
         remote_src: yes
     
-    - name: Installing NPM and dependencies
-      ansible.builtin.shell: npm install
-      args:
-        chdir: /app
+    - name: Installing NPM and dependencies (#npm install)
+      ansible.builtin.pip: 
+        requirements: /app/requirements.txt
 
     - name: Setup payment service
       ansible.builtin.copy:
@@ -103,6 +94,32 @@
         name: payment
         state: restarted
         enabled: true
+        
+    - name: Check AWS CLI availability
+      ansible.builtin.shell: |
+        if [ -x /usr/local/bin/aws ]; then
+          /usr/local/bin/aws --version
+        elif [ -x /usr/bin/aws ]; then
+          /usr/bin/aws --version
+        else
+          exit 1
+        fi
+      register: aws_cli_version
+      ignore_errors: true
+
+    - name: Install AWS CLI v2 when missing or broken
+      when: aws_cli_version.rc != 0
+      ansible.builtin.shell: |
+        cd /tmp
+        curl -s "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+        unzip -o awscliv2.zip
+        ./aws/install --update
+
+    - name: Ensure aws executable available under /usr/bin/aws
+      ansible.builtin.file:
+        src: /usr/local/bin/aws
+        dest: /usr/bin/aws
+        state: link
 
     - name: Updating Route53 records
       ansible.builtin.shell: |

@@ -20,7 +20,6 @@
 
     - when: out.rc != 0
       name: create user roboshop
-      become: yes         # we need sudo access for this task
       ansible.builtin.user:
         name: roboshop
 
@@ -37,12 +36,12 @@
       name: Create /app directory
       ansible.builtin.file:
         path: /app
-        state: 
+        state: directory
         
     - name: Download dispatch artifact
       ansible.builtin.get_url:
-      url: https://roboshop-builds.s3.amazonaws.com/dispatch.zip
-      dest: /tmp/dispatch.zip
+        url: https://roboshop-builds.s3.amazonaws.com/dispatch.zip
+        dest: /tmp/dispatch.zip
     
     - name: extract dispatch artifac
       ansible.builtin.unarchive:
@@ -91,7 +90,7 @@
           -H "X-aws-ec2-metadata-token-ttl-seconds: 21600")
 
         PRIVATE_IP=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" \
-          http://169.254.169.254/latest/meta-data/local-ipv4)v4)
+          http://169.254.169.254/latest/meta-data/local-ipv4)
 
         aws route53 change-resource-record-sets \
           --hosted-zone-id {{ hosted_zone_id }} \
