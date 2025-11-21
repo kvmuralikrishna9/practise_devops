@@ -16,7 +16,7 @@
           - gcc
           - python3-devel
         state: installed
-        update_cache: 
+        update_cache: yes
   
     - name: Install NodeJS (required only if npm install is needed)
       ansible.builtin.dnf:
