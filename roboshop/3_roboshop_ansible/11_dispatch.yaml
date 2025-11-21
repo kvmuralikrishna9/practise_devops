@@ -50,7 +50,7 @@
         dest: /app
         remote_src: yes
     
-    - name: Installing NPM and dependencies
+    - name: Install dependencies & build the software
       ansible.builtin.shell: |
         go mod init dispatch
         go get

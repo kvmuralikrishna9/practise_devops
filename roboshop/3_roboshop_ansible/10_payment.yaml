@@ -18,10 +18,13 @@
         state: installed
         update_cache: yes
   
-    - name: Install NodeJS (required only if npm install is needed)
+    - name: Setup the NPM repo
+      ansible.builtin.shell: "curl -sL https://rpm.nodesource.com/setup_lts.x | bash"
+
+    - name: Install NodeJS
       ansible.builtin.dnf:
         name: nodejs
-        state: present
+        state: installed
 
     - name: check roboshop user exist or not
       ansible.builtin.shell: id roboshop
