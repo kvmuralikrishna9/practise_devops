@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+#set -e
 
 # Checking the current user and suggest to be root
 if [[ $USER -ne 0 ]] ; then

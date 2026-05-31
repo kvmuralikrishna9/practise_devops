@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+#set -e
 
 # Checking the current user and suggest to be root
 if [[ $USER -ne 0 ]] ; then
@@ -19,7 +19,7 @@ mkdir /app
 curl -L -o /tmp/dispatch.zip https://roboshop-builds.s3.amazonaws.com/dispatch.zip
 cd /app
 unzip /tmp/dispatch.zip
-
+dispatch
 go mod init dispatch
 go get
 go build

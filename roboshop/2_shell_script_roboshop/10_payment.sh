@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e 
+#set -e 
 
 # Checking the current user and suggest to be root
 if [[ $USER -ne 0 ]] ; then
@@ -67,5 +67,5 @@ aws route53 change-resource-record-sets \
         \"ResourceRecords\": [{ \"Value\": \"$PRIVATE_IP\" }]
       }
     }]
-  }"
+  }" | tee -a $LOGFILE
 echo -e "\nUpdated Private IP Address '$PRIVATE_IP' in A-records . . .\n" | tee -a $LOGFILE

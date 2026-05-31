@@ -1,10 +1,8 @@
 #!/bin/bash
 
 USERID=$(id -u)
-LOGFILE=/tmp/roboshop_catalogue_script.log
 APPDIR=/app
-
-set -e 
+LOGFILE=/tmp/roboshop_catalogue_script.log
 
 # Checking the current user and suggest to be root
 if [[ $USERID -ne 0 ]] ; then
@@ -25,6 +23,8 @@ CMD_STATUS=$?
 if [[ $CMD_STATUS -ne 0 ]] ; then
     echo -e "\nuser 'roboshop' not found, continuing creating the user\n" | tee -a $LOGFILE
     useradd roboshop
+    id roboshop
+    echo -e "\nuser 'roboshop' created" | tee -a $LOGFILE
 else
     echo -e "\nuser 'roboshop' exits, so continuing without creating user\n" | tee -a $LOGFILE
 fi

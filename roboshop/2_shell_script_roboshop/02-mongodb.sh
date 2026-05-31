@@ -3,7 +3,7 @@
 USERID=$(id -u)
 LOGFILE="/tmp/roboshop_mongodb_script.log"
 
-set -e 
+#set -e 
 
 # Checking the current user and suggest to be root
 if [[ $USERID -ne 0 ]] ; then
