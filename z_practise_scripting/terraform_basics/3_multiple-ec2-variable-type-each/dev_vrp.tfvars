@@ -1,0 +1,6 @@
+# vrp_ami           = "ami-0521cb2d60cfbb1a6"
+# vrp_instance_type = "t2.micro"
+vrp_iam_role      = "murali_SSMFullAccess"
+vrp_pemkey        = "n.virgina"
+vrp_sg            = "sg-01af8d6ae6c53364b"
+vrp_pvt_subnet    = "subnet-007f39e6016798381"

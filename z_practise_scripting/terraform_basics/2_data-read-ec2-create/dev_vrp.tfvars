@@ -1,4 +1,4 @@
-vrp_ami           = "ami-0521cb2d60cfbb1a6"
+# vrp_ami           = "ami-0521cb2d60cfbb1a6"
 vrp_instance_type = "t2.micro"
 vrp_region        = "us-east-1"
 vrp_iam_role      = "murali_SSMFullAccess"

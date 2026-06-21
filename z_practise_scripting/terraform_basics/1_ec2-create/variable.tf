@@ -1,3 +1,4 @@
+# Terrraform variable configuration for creating an EC2 instance
 variable "vrp_ami" {}
 variable "vrp_instance_type" {}
 variable "vrp_region" {}
